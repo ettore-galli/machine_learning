@@ -130,21 +130,36 @@ class LinearRegressionEngine:
                 degree=self.degree
             )
             X_poly = self.poly_def.fit_transform(X)
-            print("\n X_poly: ", X_poly)
             self.model.fit(X_poly, y, sample_weight)
 
-    def eval_polynomial_terms(self, polynomial_coefficients, x):
+    def eval_polynomial_terms(self, polynomial_powers, polynomial_coefficients, x):
+        '''
+        Eval the polynomial terms and return them separately
+
+        :param polynomial_powers: Powers for each variable
+        :param polynomial_coefficients: Coefficients
+        :param x: Variable values (x is a vector)
+        :return: List of monomials
+        '''
         polynomial_terms = []
-        for monomial_index, monomial_powers in enumerate(self.polynomial_powers):
+        for monomial_index, monomial_powers in enumerate(polynomial_powers):
             monomial = polynomial_coefficients[monomial_index]
             for power_index, power in enumerate(monomial_powers):
                 monomial = monomial * (x[power_index] ** power)
             polynomial_terms.append(monomial)
         return polynomial_terms
 
-    def create_polynomial_features(self, x):
-        polynomial_coefficients = [1] * len(self.polynomial_powers)
-        return self.eval_polynomial_terms(polynomial_coefficients, x)
+    def create_polynomial_features(self, polynomial_powers, x):
+        '''
+        Create the numeric polynomial features (i.e. the x evaluated for all power
+        combinations) given the powers and the values of x
+
+        :param polynomial_powers:
+        :param x:
+        :return:
+        '''
+        polynomial_coefficients = [1] * len(polynomial_powers)
+        return self.eval_polynomial_terms(polynomial_powers, polynomial_coefficients, x)
 
     def get_polynomial_definition(self):
         coefficients = \
@@ -160,6 +175,18 @@ class LinearRegressionEngine:
         return sum(self.eval_polynomial_terms(polynomial_coefficients, x))
 
     def fit_predictable(self, X, y, sample_weight=None):
+        '''
+        Fits data using polynomial regression and a predictable set of
+        polynomial features.
+        The latter, in order to allow for the definition of the polynomial
+        to be exported and used regardless to the technology.
+
+        :param X: Array of x multivariable samples
+        :param y: Corresponding values
+        :param sample_weight: Scipy LinearRegression corresponding parameter
+        :return: None; sets
+
+        '''
         self.number_of_variables = len(X[0])
         self.polynomial_powers = self.predictable_polynomial_powers(
             ["x" + str(x) for x in range(self.number_of_variables)],
@@ -173,9 +200,8 @@ class LinearRegressionEngine:
         else:
             X_poly = []
             for xd1 in X:
-                xi_poly = self.create_polynomial_features(xd1)
+                xi_poly = self.create_polynomial_features(self.polynomial_powers, xd1)
                 X_poly.append(xi_poly)
-            print("\n X_poly: ", X_poly)
             self.model.fit(X_poly, y, sample_weight)
 
     def predict_native(self, x):
