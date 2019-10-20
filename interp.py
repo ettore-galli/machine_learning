@@ -35,7 +35,7 @@ if __name__ == "__main__":
     print("========== PREDITTORE NATIVO")
 
     lre = LinearRegressionEngine(degree=DEGREE)
-    lre.fit(ingressi, valori)
+    lre.fit_native(ingressi, valori)
 
     if DEGREE > 1:
         print(

@@ -111,9 +111,11 @@ class LinearRegressionEngine:
 
         return polyexp
 
-    def fit(self, X, y, sample_weight=None):
+    def fit_native(self, X, y, sample_weight=None):
         '''
         Wraps the standard fit method with native polynomial features
+        Its main purpose is for native vs.predictable unit test comparisons,
+        but you never know...
 
         :param X:
         :param y:
@@ -131,6 +133,22 @@ class LinearRegressionEngine:
             )
             X_poly = self.poly_def.fit_transform(X)
             self.model.fit(X_poly, y, sample_weight)
+
+    def predict_native(self, x):
+        '''
+        Wraps the standard predict method.
+        Its main purpose is for native vs.predictable unit test comparisons,
+        but you never know...
+
+        :param x:
+        :return:
+        '''
+        if self.degree == 1:
+            pred = self.model.predict([x])
+        else:
+            x_poly = self.poly_def.fit_transform([x])
+            pred = self.model.predict(x_poly)
+        return pred
 
     def eval_polynomial_terms(self, polynomial_powers, polynomial_coefficients, x):
         '''
@@ -203,11 +221,3 @@ class LinearRegressionEngine:
                 xi_poly = self.create_polynomial_features(self.polynomial_powers, xd1)
                 X_poly.append(xi_poly)
             self.model.fit(X_poly, y, sample_weight)
-
-    def predict_native(self, x):
-        if self.degree == 1:
-            pred = self.model.predict([x])
-        else:
-            x_poly = self.poly_def.fit_transform([x])
-            pred = self.model.predict(x_poly)
-        return pred
