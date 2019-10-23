@@ -123,7 +123,7 @@ class LinearRegressionEngine:
         :return:
         '''
 
-        self.model = linear_model.LinearRegression(fit_intercept=self.fit_intercept)
+        self.model = linear_model.LinearRegression(fit_intercept=(self.degree==1)) # Or degree == 1 will kill everybody
 
         if self.degree == 1:
             self.model.fit(X, y, sample_weight)

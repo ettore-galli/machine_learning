@@ -51,7 +51,14 @@ class TestPolynomialFeatures(unittest.TestCase):
         for i in range(len(native_predictions)):
             native_value = native_predictions[i]
             polymomial_value = polynomial_predictions[i]
-            print ("Comparing ", native_value, "to", polymomial_value)
+            print(
+                "Comparing ",
+                native_value,
+                "to",
+                polymomial_value,
+                "difference:",
+                abs(native_value - polymomial_value)
+            )
             self.assertAlmostEqual(native_value, polymomial_value)
 
     def test_native_versus_predictable_degree_1(self):
@@ -70,7 +77,7 @@ class TestPolynomialFeatures(unittest.TestCase):
             [7.9],
             [14.1],
             [17.2],
-            [0.1]
+            [0.18]
         ]
 
         test_inputs = [
@@ -85,7 +92,6 @@ class TestPolynomialFeatures(unittest.TestCase):
         degree = 1
 
         self.__native_versus_predictable_test_common(fit_inputs, fit_expected_outputs, degree, test_inputs)
-
 
     def test_native_versus_predictable_degree_2(self):
         fit_inputs = [
