@@ -54,7 +54,40 @@ class TestPolynomialFeatures(unittest.TestCase):
             print ("Comparing ", native_value, "to", polymomial_value)
             self.assertAlmostEqual(native_value, polymomial_value)
 
-    def test_native_versus_predictable_1(self):
+    def test_native_versus_predictable_degree_1(self):
+        fit_inputs = [
+            [200.0, 300.0, 50.0],
+            [250.0, 200.0, 40.0],
+            [350.0, 190.0, 55.0],
+            [345.0, 180.0, 12.0],
+            [371.0, 431.0, 77.0],
+            [2.0, 3.0, 4.0]
+        ]
+
+        fit_expected_outputs = [
+            [7.0],
+            [7.4],
+            [7.9],
+            [14.1],
+            [17.2],
+            [0.1]
+        ]
+
+        test_inputs = [
+            [130.0, 200.0, 10.0],
+            [260.0, 201.0, 31.0],
+            [590.0, 320.0, 98.0],
+            [371.0, 431.0, 77.0],
+            [371.1, 431.1, 77.1],
+            [2, 3, 4]
+        ]
+
+        degree = 1
+
+        self.__native_versus_predictable_test_common(fit_inputs, fit_expected_outputs, degree, test_inputs)
+
+
+    def test_native_versus_predictable_degree_2(self):
         fit_inputs = [
             [200.0, 300.0, 50.0],
             [250.0, 200.0, 40.0],
@@ -83,5 +116,37 @@ class TestPolynomialFeatures(unittest.TestCase):
         ]
 
         degree = 2
+
+        self.__native_versus_predictable_test_common(fit_inputs, fit_expected_outputs, degree, test_inputs)
+
+    def test_native_versus_predictable_degree_3(self):
+        fit_inputs = [
+            [200.0, 300.0, 50.0],
+            [250.0, 200.0, 40.0],
+            [350.0, 190.0, 55.0],
+            [345.0, 180.0, 12.0],
+            [371.0, 431.0, 77.0],
+            [2.0, 3.0, 4.0]
+        ]
+
+        fit_expected_outputs = [
+            [7.0],
+            [7.4],
+            [7.9],
+            [14.1],
+            [17.2],
+            [0.1]
+        ]
+
+        test_inputs = [
+            [130.0, 200.0, 10.0],
+            [260.0, 201.0, 31.0],
+            [590.0, 320.0, 98.0],
+            [371.0, 431.0, 77.0],
+            [371.1, 431.1, 77.1],
+            [2, 3, 4]
+        ]
+
+        degree = 3
 
         self.__native_versus_predictable_test_common(fit_inputs, fit_expected_outputs, degree, test_inputs)

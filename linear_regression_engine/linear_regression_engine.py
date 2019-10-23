@@ -213,11 +213,8 @@ class LinearRegressionEngine:
 
         self.model = linear_model.LinearRegression(fit_intercept=self.fit_intercept)
 
-        if self.degree == 1:
-            self.model.fit(X, y, sample_weight)
-        else:
-            X_poly = []
-            for xd1 in X:
-                xi_poly = self.create_polynomial_features(self.polynomial_powers, xd1)
-                X_poly.append(xi_poly)
-            self.model.fit(X_poly, y, sample_weight)
+        X_poly = []
+        for xd1 in X:
+            xi_poly = self.create_polynomial_features(self.polynomial_powers, xd1)
+            X_poly.append(xi_poly)
+        self.model.fit(X_poly, y, sample_weight)

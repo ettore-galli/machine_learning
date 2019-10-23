@@ -85,6 +85,16 @@ class TestPolynomialFeatures(unittest.TestCase):
         ]
         self.assertEqual(ppf_calc, ppf_expected)
 
+    def test_predictable_polynomial_powers_degree_1(self):
+        lre = LinearRegressionEngine(self.DEGREE_THAT_DOES_NOT_MATTER)
+        variables = ["a", "b", "c"]
+        ppw_calc = lre.predictable_polynomial_powers(variables, 1)
+        ppw_expected = [
+            [0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]
+        ]
+
+        self.assertEqual(ppw_calc, ppw_expected)
+
     def test_predictable_polynomial_powers_degree_2(self):
         lre = LinearRegressionEngine(self.DEGREE_THAT_DOES_NOT_MATTER)
         variables = ["a", "b", "c"]
