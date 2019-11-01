@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator, griddata
 from sklearn import linear_model, pipeline, preprocessing
+from typing import TypeVar, MutableSequence, List, Iterable
 
 
 class LinearRegressionEngine:
@@ -12,7 +13,12 @@ class LinearRegressionEngine:
     POLYNOMIAL_COEFFICIENTS_KEY = "coefficients"
     POLYNOMIAL_POWERS_KEY = "powers"
 
-    def __init__(self, degree=1, normalize=False, n_jobs=None):
+    PolymorphicItem = TypeVar('ListElement', int, float, str)
+    NumericItem = TypeVar('ListElement', int, float)
+
+    # x:MutableSequence[SymbolicListElement]
+
+    def __init__(self, degree: int = 1, normalize: bool = False, n_jobs: int = None):
         '''
         Contructor
         :param degree: Degree of the polynomial.
@@ -27,6 +33,7 @@ class LinearRegressionEngine:
         self.model = None
         self.number_of_variables = None
         self.polynomial_powers = None
+        self.poly_def = None
 
     def merge_as_tuple(self, a, b):
         '''
@@ -40,7 +47,7 @@ class LinearRegressionEngine:
         b_t = b if type(b) is tuple else (str(b),)
         return a_t + b_t
 
-    def cartesian_product(self, x, y):
+    def cartesian_product(self, x: List[PolymorphicItem], y: List[PolymorphicItem]):
         '''
         Cartesian product of two "sets" **without** repetition.
 
@@ -60,7 +67,7 @@ class LinearRegressionEngine:
                     cp.append(px)
         return cp
 
-    def tuple_product(self, tp):
+    def tuple_product(self, tp: List[NumericItem]):
         '''
         Calculates the product of all items in the given tuple, each one assumed to
         be numeric.
@@ -73,7 +80,7 @@ class LinearRegressionEngine:
         else:
             return tp[0] * self.tuple_product(tp[1:])
 
-    def predictable_polynomial_features(self, x, degree=1):
+    def predictable_polynomial_features(self, x: List[PolymorphicItem], degree: int = 1):
         '''
         Given a set of symbolic variables, creates the combination of variables
         that make up a polynomial of the given degree.
@@ -93,7 +100,7 @@ class LinearRegressionEngine:
 
             return ppf
 
-    def predictable_polynomial_powers(self, x_symbols, degree=1):
+    def predictable_polynomial_powers(self, x_symbols: List[PolymorphicItem], degree: int = 1):
         '''
         Calculates the powers of each variable for each term of the polynomial
 
@@ -111,7 +118,7 @@ class LinearRegressionEngine:
 
         return polyexp
 
-    def fit_native(self, X, y, sample_weight=None):
+    def fit_native(self, X: List[List[NumericItem]], y: List[NumericItem], sample_weight=None):
         '''
         Wraps the standard fit method with native polynomial features
         Its main purpose is for native vs.predictable unit test comparisons,
@@ -123,7 +130,8 @@ class LinearRegressionEngine:
         :return:
         '''
 
-        self.model = linear_model.LinearRegression(fit_intercept=(self.degree==1)) # Or degree == 1 will kill everybody
+        self.model = linear_model.LinearRegression(
+            fit_intercept=(self.degree == 1))  # Or degree == 1 will kill everybody
 
         if self.degree == 1:
             self.model.fit(X, y, sample_weight)
@@ -134,7 +142,7 @@ class LinearRegressionEngine:
             X_poly = self.poly_def.fit_transform(X)
             self.model.fit(X_poly, y, sample_weight)
 
-    def predict_native(self, x):
+    def predict_native(self, x: List[NumericItem]):
         '''
         Wraps the standard predict method.
         Its main purpose is for native vs.predictable unit test comparisons,
@@ -150,7 +158,8 @@ class LinearRegressionEngine:
             pred = self.model.predict(x_poly)
         return pred
 
-    def eval_polynomial_terms(self, polynomial_powers, polynomial_coefficients, x):
+    def eval_polynomial_terms(self, polynomial_powers: List[List[int]], polynomial_coefficients: List[NumericItem],
+                              x: List[NumericItem]):
         '''
         Eval the polynomial terms and return them separately
 
@@ -167,7 +176,7 @@ class LinearRegressionEngine:
             polynomial_terms.append(monomial)
         return polynomial_terms
 
-    def create_polynomial_features(self, polynomial_powers, x):
+    def create_polynomial_features(self, polynomial_powers: List[List[int]], x: List[NumericItem]):
         '''
         Create the numeric polynomial features (i.e. the x evaluated for all power
         combinations) given the powers and the values of x
@@ -189,10 +198,17 @@ class LinearRegressionEngine:
         }
         return polynomial_definition
 
-    def eval_polynomial_internal(self, polynomial_coefficients, x):
+    def eval_polynomial_internal_do_not_use_me(self, polynomial_coefficients, x):
+        '''
+        Actually unused; TODO: Maybe Cleanup?
+
+        :param polynomial_coefficients:
+        :param x:
+        :return:
+        '''
         return sum(self.eval_polynomial_terms(polynomial_coefficients, x))
 
-    def fit_predictable(self, X, y, sample_weight=None):
+    def fit_predictable(self, X: List[List[NumericItem]], y: List[NumericItem], sample_weight=None):
         '''
         Fits data using polynomial regression and a predictable set of
         polynomial features.
