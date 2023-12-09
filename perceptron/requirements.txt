@@ -1,0 +1,11 @@
+# run
+numpy
+
+# test
+pytest
+ 
+# dev
+black
+flake8
+pylint
+mypy
