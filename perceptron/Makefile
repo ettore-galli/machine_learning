@@ -1,6 +1,10 @@
 
 PACKAGE=perceptron
 
+test: 
+	@echo "===== TESTING ${PACKAGE} ====="
+	pytest tests/
+
 lint:
 	@echo "===== LINTING ${PACKAGE} ====="
 	flake8 ${PACKAGE}
@@ -8,3 +12,4 @@ lint:
 	pylint ${PACKAGE}
 	mypy ${PACKAGE}
 
+all: lint test
