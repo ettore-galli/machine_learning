@@ -6,7 +6,7 @@ from functools import reduce
 from typing import Any, Callable, Dict, Tuple, Optional, Generator
 import numpy as np
 
-from perceptron.iteration import reduce_while
+from perceptron.iteration import reduce_until
 
 PERCEPTRON_DEFAULT_ITERATIONS: int = 100
 
@@ -67,13 +67,13 @@ def perceptron(
     def classifier_reducer(acc, cur):
         return perceptron_step(classifier=acc, sample=cur[0], label=cur[1], hook=hook)
 
-    classifier = reduce_while(
+    classifier = reduce_until(
         function=lambda acc_classifier, _: reduce(
             classifier_reducer, zip(data.T, labels.T), acc_classifier
         ),
         sequence=range(params.get("T", PERCEPTRON_DEFAULT_ITERATIONS)),
         initial=classifier,
-        while_predicate=lambda acc, _: acc.has_mistakes,
+        until_predicate=lambda acc, _: not acc.has_mistakes,
     )
 
     return classifier.theta.reshape((dimension, 1)), np.array([classifier.theta_0])
