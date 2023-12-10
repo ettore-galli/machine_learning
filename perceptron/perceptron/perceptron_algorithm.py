@@ -1,10 +1,18 @@
-from typing import Callable, Tuple, Optional, Generator
+from __future__ import annotations
+from dataclasses import dataclass
+from functools import reduce
+
+from typing import Any, Callable, Dict, Tuple, Optional, Generator
 import numpy as np
 
 
 Data = np.ndarray
 Labels = np.ndarray
-Params = dict
+
+Sample = np.ndarray
+Label = float
+
+Params = Dict[str, Any]
 
 Theta = np.ndarray
 ThetaZero = float
@@ -12,31 +20,56 @@ ThetaZero = float
 Hook = Callable[[Theta, ThetaZero], None]
 
 
+@dataclass
+class Classifier:
+    theta: Theta
+    theta_0: ThetaZero
+    has_mistakes: bool = False
+
+    def with_mistake_correction(
+        self, delta_theta: Theta, delta_theta_0: ThetaZero
+    ) -> Classifier:
+        return Classifier(
+            theta=self.theta + delta_theta,
+            theta_0=self.theta_0 + delta_theta_0,
+            has_mistakes=True,
+        )
+
+
+def perceptron_step(
+    classifier: Classifier, sample: Sample, label: Label, hook: Optional[Hook] = None
+) -> Classifier:
+    result = np.dot(classifier.theta, sample) + classifier.theta_0
+    margin = label * result
+
+    if margin <= 0:
+        classifier_with_mistake_correction = classifier.with_mistake_correction(
+            delta_theta=label * sample, delta_theta_0=label
+        )
+        if hook:
+            hook(classifier.theta, classifier.theta_0)
+        return classifier_with_mistake_correction
+
+    return classifier
+
+
 def perceptron(
     data: Data, labels: Labels, params: Params, hook: Optional[Hook] = None
 ) -> Tuple[np.ndarray, np.ndarray]:
     dimension = data.shape[0]
-    theta = np.zeros(dimension)
-    theta_0 = 0
+
+    classifier = Classifier(theta=np.zeros(dimension), theta_0=0)
+
+    def classifier_reducer(acc, cur):
+        return perceptron_step(classifier=acc, sample=cur[0], label=cur[1], hook=hook)
 
     for _ in range(params.get("T", 10)):
-        mistakes_happened: bool = False
+        classifier = reduce(classifier_reducer, zip(data.T, labels.T), classifier)
 
-        for sample, label in zip(data.T, labels.T):
-            result = np.dot(theta, sample) + theta_0
-            margin = label * result
-
-            if margin <= 0:
-                mistakes_happened = True
-                theta += label * sample
-                theta_0 += label
-                if hook:
-                    hook(theta, theta_0)
-
-        if not mistakes_happened:
+        if not classifier.has_mistakes:
             break
 
-    return theta.reshape((dimension, 1)), np.array([theta_0])
+    return classifier.theta.reshape((dimension, 1)), np.array([classifier.theta_0])
 
 
 def averaged_perceptron(

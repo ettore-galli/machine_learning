@@ -3,7 +3,7 @@ import numpy as np
 
 from pytest import approx
 
-from perceptron.perceptron import (
+from perceptron.perceptron_algorithm import (
     averaged_perceptron,
     d_split_j,
     d_split_j_looper,
