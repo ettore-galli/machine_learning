@@ -21,8 +21,7 @@ def reduce_while(
     accumulator = initial
 
     for current in it:
+        accumulator = function(accumulator, current)
         if not while_predicate(accumulator, current):
             break
-        accumulator = function(accumulator, current)
-
     return accumulator
