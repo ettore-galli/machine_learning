@@ -1,7 +1,7 @@
 from typing import Any, Iterable, Callable, Optional
 
 
-def reduce_conditioned(
+def __interruptable_reduce(
     function: Callable[[Any, Any], Any],
     sequence: Iterable,
     initial: Any,
@@ -28,13 +28,13 @@ def reduce_while(
     function: Callable[[Any, Any], Any],
     sequence: Iterable,
     initial: Any,
-    while_predicate: Callable[[Any, Any], bool],
+    predicate: Callable[[Any, Any], bool],
 ):
-    return reduce_conditioned(
+    return __interruptable_reduce(
         function=function,
         sequence=sequence,
         initial=initial,
-        while_predicate=while_predicate,
+        while_predicate=predicate,
         until_predicate=None,
     )
 
@@ -43,12 +43,12 @@ def reduce_until(
     function: Callable[[Any, Any], Any],
     sequence: Iterable,
     initial: Any,
-    until_predicate: Callable[[Any, Any], bool],
+    predicate: Callable[[Any, Any], bool],
 ):
-    return reduce_conditioned(
+    return __interruptable_reduce(
         function=function,
         sequence=sequence,
         initial=initial,
         while_predicate=None,
-        until_predicate=until_predicate,
+        until_predicate=predicate,
     )

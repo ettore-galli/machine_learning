@@ -64,16 +64,17 @@ def perceptron(
 
     classifier = Classifier(theta=np.zeros(dimension), theta_0=0)
 
-    def classifier_reducer(acc, cur):
+    def single_sample_reducer(acc, cur):
         return perceptron_step(classifier=acc, sample=cur[0], label=cur[1], hook=hook)
 
+    def dataset_iterations_reducer(acc_classifier, _):
+        return reduce(single_sample_reducer, zip(data.T, labels.T), acc_classifier)
+
     classifier = reduce_until(
-        function=lambda acc_classifier, _: reduce(
-            classifier_reducer, zip(data.T, labels.T), acc_classifier
-        ),
+        function=dataset_iterations_reducer,
         sequence=range(params.get("T", PERCEPTRON_DEFAULT_ITERATIONS)),
         initial=classifier,
-        until_predicate=lambda acc, _: not acc.has_mistakes,
+        predicate=lambda acc, _: not acc.has_mistakes,
     )
 
     return classifier.theta.reshape((dimension, 1)), np.array([classifier.theta_0])
