@@ -1,4 +1,33 @@
+from itertools import accumulate, takewhile
 from perceptron.iteration import reduce_while, reduce_until
+
+
+def test_iteration_ideas():
+    assert list(list(accumulate(range(16), lambda t, _: t * 2, initial=1))) == [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32,
+        64,
+        128,
+        256,
+        512,
+        1024,
+        2048,
+        4096,
+        8192,
+        16384,
+        32768,
+        65536,
+    ]
+    assert [
+        q
+        for q in takewhile(
+            lambda k: k < 1000, accumulate(range(1000), lambda t, _: t * 2, initial=1)
+        )
+    ] == [1, 2, 4, 8, 16, 32, 64, 128, 256, 512]
 
 
 def test_reduce_while():
