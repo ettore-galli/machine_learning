@@ -6,7 +6,7 @@ from functools import reduce
 from typing import Any, Callable, Dict, Tuple, Optional, Generator
 import numpy as np
 
-from perceptron.iteration import reduce_until
+from perceptron.iteration import accumulate_iterated_while
 
 PERCEPTRON_DEFAULT_ITERATIONS: int = 100
 
@@ -67,16 +67,17 @@ def perceptron(
     def single_sample_reducer(acc, cur):
         return perceptron_step(classifier=acc, sample=cur[0], label=cur[1], hook=hook)
 
-    def dataset_iterations_reducer(acc_classifier, _):
-        return reduce(single_sample_reducer, zip(data.T, labels.T), acc_classifier)
-
-    classifier = reduce_until(
-        function=dataset_iterations_reducer,
-        sequence=range(params.get("T", PERCEPTRON_DEFAULT_ITERATIONS)),
+    classifier = accumulate_iterated_while(
         initial=classifier,
-        predicate=lambda acc, _: not acc.has_mistakes,
-    )
-
+        iteration_function=(
+            lambda classifier: reduce(
+                single_sample_reducer, zip(data.T, labels.T), classifier
+            )
+        ),
+        while_predicate=lambda classifier: classifier.has_mistakes,
+        maximum_iterations=params.get("T", PERCEPTRON_DEFAULT_ITERATIONS),
+        evaluate_predicate_post=True,
+    )[-1]
     return classifier.theta.reshape((dimension, 1)), np.array([classifier.theta_0])
 
 

@@ -1,6 +1,6 @@
 from itertools import accumulate, takewhile
 from perceptron.iteration import (
-    accumulate_iterate_while_condition,
+    accumulate_iterated_while,
     reduce_while,
     reduce_until,
 )
@@ -79,8 +79,8 @@ def test_reduce_until():
     )
 
 
-def test_accumulate_iterate_while_condition():
-    result = accumulate_iterate_while_condition(
+def test_accumulate_iterated_while():
+    result = accumulate_iterated_while(
         initial=1,
         iteration_function=lambda x: x * 2,
         while_predicate=lambda x: x < 1000,

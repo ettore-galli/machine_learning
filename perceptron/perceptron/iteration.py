@@ -55,19 +55,22 @@ def reduce_until(
     )
 
 
-def accumulate_iterate_while_condition(
+def accumulate_iterated_while(
     initial: Any,
     iteration_function: Callable[[Any], Any],
     while_predicate: Callable[[Any], bool],
     maximum_iterations: int = 10000000000,
+    evaluate_predicate_post: bool = False,
 ) -> List[Any]:
     return list(
         takewhile(
             while_predicate,
             accumulate(
-                range(maximum_iterations),
+                range(1 if evaluate_predicate_post else 0, maximum_iterations),
                 lambda accumulator, _: iteration_function(accumulator),
-                initial=initial,
+                initial=iteration_function(initial)
+                if evaluate_predicate_post
+                else initial,
             ),
         )
-    )
+    ) or [initial]
