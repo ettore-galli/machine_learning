@@ -82,7 +82,7 @@ def iterate_while(
     while_predicate: Callable[[Any], bool],
     maximum_iterations: int = 10000000000,
     evaluate_predicate_post: bool = False,
-) -> List[Any]:
+) -> Any:
     return accumulate_iterate_while(
         initial=initial,
         iteration_function=iteration_function,
