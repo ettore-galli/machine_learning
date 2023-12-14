@@ -1,4 +1,5 @@
-from typing import Any, Iterable, Callable, Optional
+from itertools import accumulate, takewhile
+from typing import Any, Iterable, Callable, List, Optional
 
 
 def __interruptable_reduce(
@@ -51,4 +52,22 @@ def reduce_until(
         initial=initial,
         while_predicate=None,
         until_predicate=predicate,
+    )
+
+
+def accumulate_iterate_while_condition(
+    initial: Any,
+    iteration_function: Callable[[Any], Any],
+    while_predicate: Callable[[Any], bool],
+    maximum_iterations: int = 10000000000,
+) -> List[Any]:
+    return list(
+        takewhile(
+            while_predicate,
+            accumulate(
+                range(maximum_iterations),
+                lambda accumulator, _: iteration_function(accumulator),
+                initial=initial,
+            ),
+        )
     )

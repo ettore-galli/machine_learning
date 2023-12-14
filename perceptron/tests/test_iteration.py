@@ -1,5 +1,9 @@
 from itertools import accumulate, takewhile
-from perceptron.iteration import reduce_while, reduce_until
+from perceptron.iteration import (
+    accumulate_iterate_while_condition,
+    reduce_while,
+    reduce_until,
+)
 
 
 def test_iteration_ideas():
@@ -73,3 +77,13 @@ def test_reduce_until():
         )
         == 15
     )
+
+
+def test_accumulate_iterate_while_condition():
+    result = accumulate_iterate_while_condition(
+        initial=1,
+        iteration_function=lambda x: x * 2,
+        while_predicate=lambda x: x < 1000,
+        maximum_iterations=1000000000,
+    )
+    assert result == [1, 2, 4, 8, 16, 32, 64, 128, 256, 512]
