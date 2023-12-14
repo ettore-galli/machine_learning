@@ -66,8 +66,8 @@ def accumulate_iterated_while(
         takewhile(
             while_predicate,
             accumulate(
-                range(1 if evaluate_predicate_post else 0, maximum_iterations),
-                lambda accumulator, _: iteration_function(accumulator),
+                iterable=range(1 if evaluate_predicate_post else 0, maximum_iterations),
+                func=lambda accumulator, _: iteration_function(accumulator),
                 initial=iteration_function(initial)
                 if evaluate_predicate_post
                 else initial,
