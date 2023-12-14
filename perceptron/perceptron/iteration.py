@@ -1,6 +1,8 @@
 from itertools import accumulate, takewhile
 from typing import Any, Iterable, Callable, List, Optional
 
+MAXIMUM_ITERATIONS_EVER = 1000000000000000
+
 
 def __interruptable_reduce(
     function: Callable[[Any, Any], Any],
@@ -59,7 +61,7 @@ def accumulate_iterate_while(
     initial: Any,
     iteration_function: Callable[[Any], Any],
     while_predicate: Callable[[Any], bool],
-    maximum_iterations: int = 10000000000,
+    maximum_iterations: int = MAXIMUM_ITERATIONS_EVER,
     evaluate_predicate_post: bool = False,
 ) -> List[Any]:
     return list(
