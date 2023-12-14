@@ -55,7 +55,7 @@ def reduce_until(
     )
 
 
-def accumulate_iterated_while(
+def accumulate_iterate_while(
     initial: Any,
     iteration_function: Callable[[Any], Any],
     while_predicate: Callable[[Any], bool],
@@ -74,3 +74,19 @@ def accumulate_iterated_while(
             ),
         )
     ) or [initial]
+
+
+def iterate_while(
+    initial: Any,
+    iteration_function: Callable[[Any], Any],
+    while_predicate: Callable[[Any], bool],
+    maximum_iterations: int = 10000000000,
+    evaluate_predicate_post: bool = False,
+) -> List[Any]:
+    return accumulate_iterate_while(
+        initial=initial,
+        iteration_function=iteration_function,
+        while_predicate=while_predicate,
+        maximum_iterations=maximum_iterations,
+        evaluate_predicate_post=evaluate_predicate_post,
+    )[-1]
