@@ -14,14 +14,16 @@ from perceptron.perceptron_algorithm import (
     Labels,
     Params,
     Hook,
+    Sample,
+    Label,
     Theta,
     ThetaZero,
     xval_learning_alg,
 )
 
 
-def plot_classifier(theta: Theta, theta_0=ThetaZero):
-    print(theta, theta_0)
+def plot_classifier(sample: Sample, label: Label, theta: Theta, theta_0=ThetaZero):
+    print(sample, label, theta, theta_0)
 
 
 def test_perceptron():

@@ -21,7 +21,7 @@ Params = Dict[str, Any]
 Theta = np.ndarray
 ThetaZero = float
 
-Hook = Callable[[Theta, ThetaZero], None]
+Hook = Callable[[Sample, Label, Theta, ThetaZero], None]
 
 
 @dataclass
@@ -51,7 +51,7 @@ def perceptron_step(
             delta_theta=label * sample, delta_theta_0=label
         )
         if hook:
-            hook(classifier.theta, classifier.theta_0)
+            hook(sample, label, classifier.theta, classifier.theta_0)
         return classifier_with_mistake_correction
 
     return classifier
@@ -99,7 +99,7 @@ def averaged_perceptron(
                 theta += label * sample
                 theta_0 += label
                 if hook:
-                    hook(theta, theta_0)
+                    hook(sample, label, theta, theta_0)
             theta_avg += theta
             theta_0_avg += theta_0
             number_of_runs += 1
