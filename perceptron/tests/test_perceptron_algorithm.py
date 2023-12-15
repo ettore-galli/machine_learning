@@ -5,6 +5,7 @@ from pytest import approx
 
 from perceptron.perceptron_algorithm import (
     averaged_perceptron,
+    averaged_perceptron_legacy,
     d_split_j,
     d_split_j_looper,
     eval_classifier,
@@ -54,6 +55,26 @@ def test_averaged_perceptron():
     params: Params = {"T": 100}
     hook: Hook = log_classifier_step
     classifier = averaged_perceptron(
+        data=data,
+        labels=labels,
+        params=params,
+        perceptron_step=offset_perceptron_step,
+        hook=hook,
+    )
+    classifier_coefficents = classifier.get_classifier_coefficents()
+    print([x.tolist() for x in classifier_coefficents])
+
+    np.array_equal(classifier_coefficents[0], np.array([-9.0, 18.0]))
+
+    assert classifier_coefficents[1] == approx(1.9425)
+
+
+def test_averaged_perceptron_legacy():
+    data: Data = np.array([[2, 3, 9, 12], [5, 1, 6, 5]])
+    labels: Labels = np.array([[1, -1, 1, -1]])
+    params: Params = {"T": 100}
+    hook: Hook = log_classifier_step
+    classifier = averaged_perceptron_legacy(
         data=data,
         labels=labels,
         params=params,

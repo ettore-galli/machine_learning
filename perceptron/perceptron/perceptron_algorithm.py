@@ -61,9 +61,21 @@ class Classifier:
             dimension=self.dimension,
             theta=theta,
             theta_0=theta_0,
-            theta_sum=self.theta_sum + theta,
-            theta_0_sum=self.theta_0_sum + theta_0,
+            theta_sum=self.theta_sum,
+            theta_0_sum=self.theta_0_sum,
             has_mistakes=True,
+            number_of_runs=self.number_of_runs,
+        )
+
+    def with_average_data(self) -> Classifier:
+        return Classifier(
+            is_averaged=self.is_averaged,
+            dimension=self.dimension,
+            theta=self.theta,
+            theta_0=self.theta_0,
+            theta_sum=self.theta_sum + self.theta,
+            theta_0_sum=self.theta_0_sum + self.theta_0,
+            has_mistakes=self.has_mistakes,
             number_of_runs=self.number_of_runs + 1,
         )
 
@@ -82,11 +94,19 @@ class Classifier:
 
     @property
     def theta_avg(self) -> Theta:
-        return self.theta_sum / self.number_of_runs
+        return (
+            self.theta_sum / self.number_of_runs
+            if self.number_of_runs > 0
+            else self.theta_sum
+        )
 
     @property
     def theta_0_avg(self) -> ThetaZero:
-        return self.theta_0_sum / self.number_of_runs
+        return (
+            self.theta_0_sum / self.number_of_runs
+            if self.number_of_runs > 0
+            else self.theta_0_sum
+        )
 
 
 # pylint: disable=too-few-public-methods
@@ -125,10 +145,16 @@ def offset_perceptron_step(
             delta_theta=label * sample, delta_theta_0=label
         )
         if hook:
-            hook(sample, label, classifier.theta, classifier.theta_0)
-        return classifier_with_mistake_correction
+            hook(
+                sample,
+                label,
+                classifier_with_mistake_correction.theta,
+                classifier_with_mistake_correction.theta_0,
+            )
 
-    return classifier
+        return classifier_with_mistake_correction.with_average_data()
+
+    return classifier.with_average_data()
 
 
 # pylint: disable=too-many-arguments
@@ -147,14 +173,16 @@ def perceptron_engine(
     def single_sample_reducer(acc, cur):
         return perceptron_step(classifier=acc, sample=cur[0], label=cur[1], hook=hook)
 
+    def perceptron_iteration_function(cur_classifier: Classifier) -> Classifier:
+        return reduce(single_sample_reducer, zip(data.T, labels.T), cur_classifier)
+
+    def perceptron_iteration_predicate(cur_classifier: Classifier) -> bool:
+        return cur_classifier.has_mistakes or cur_classifier.is_averaged
+
     return iterate_while(
         initial=classifier,
-        iteration_function=(
-            lambda classifier: reduce(
-                single_sample_reducer, zip(data.T, labels.T), classifier
-            )
-        ),
-        while_predicate=lambda classifier: classifier.has_mistakes,
+        iteration_function=perceptron_iteration_function,
+        while_predicate=perceptron_iteration_predicate,
         maximum_iterations=params.get("T", PERCEPTRON_DEFAULT_ITERATIONS),
         evaluate_predicate_post=True,
     )
@@ -177,7 +205,7 @@ def perceptron(
     )
 
 
-def averaged_perceptron(
+def averaged_perceptron_legacy(
     data: Data,
     labels: Labels,
     params: Params,
@@ -205,17 +233,6 @@ def averaged_perceptron(
             theta_0_avg += theta_0
             number_of_runs += 1
 
-    # return (theta_avg / number_of_runs).reshape((dimension, 1)), np.array(
-    #     [theta_0_avg / number_of_runs]
-    # )
-    # return perceptron_engine(
-    #     data=data,
-    #     labels=labels,
-    #     params=params,
-    #     is_averaged=True,
-    #     perceptron_step=perceptron_step,
-    #     hook=hook,
-    # )
     return Classifier(
         is_averaged=True,
         dimension=dimension,
@@ -225,6 +242,28 @@ def averaged_perceptron(
         theta_0_sum=theta_0_avg,
         number_of_runs=number_of_runs,
     )
+
+
+def averaged_perceptron(
+    data: Data,
+    labels: Labels,
+    params: Params,
+    perceptron_step: PerceptronStepProtocol,
+    hook: Optional[Hook] = None,
+) -> Classifier:
+    classifier = perceptron_engine(
+        data=data,
+        labels=labels,
+        params=params,
+        is_averaged=True,
+        perceptron_step=perceptron_step,
+        hook=hook,
+    )
+    print(f"NEW NUMBER OF RUNS: {classifier.number_of_runs}")
+    print(
+        f"NEW_sum = {classifier.theta_sum, classifier.theta_0_sum, classifier.number_of_runs}"
+    )
+    return classifier
 
 
 def y(x, th, th0):
