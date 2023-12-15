@@ -9,6 +9,7 @@ from perceptron.perceptron_algorithm import (
     d_split_j_looper,
     eval_classifier,
     eval_learning_alg,
+    offset_perceptron_step,
     perceptron,
     Data,
     Labels,
@@ -31,7 +32,13 @@ def test_perceptron():
     labels: Labels = np.array([[1, -1, 1, -1]])
     params: Params = {"T": 100}
     hook: Hook = log_classifier_step
-    classifier = perceptron(data=data, labels=labels, params=params, hook=hook)
+    classifier = perceptron(
+        data=data,
+        labels=labels,
+        params=params,
+        perceptron_step=offset_perceptron_step,
+        hook=hook,
+    )
 
     print([x.tolist() for x in classifier])
 

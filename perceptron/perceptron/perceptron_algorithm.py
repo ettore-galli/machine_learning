@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from functools import reduce
 
 
-from typing import Any, Callable, Dict, Tuple, Optional, Generator
+from typing import Any, Callable, Dict, Protocol, Tuple, Optional, Generator
 import numpy as np
 
 from perceptron.iteration import iterate_while
@@ -20,6 +20,7 @@ Params = Dict[str, Any]
 
 Theta = np.ndarray
 ThetaZero = float
+
 
 Hook = Callable[[Sample, Label, Theta, ThetaZero], None]
 
@@ -40,7 +41,19 @@ class Classifier:
         )
 
 
-def perceptron_step(
+# pylint: disable=too-few-public-methods
+class PerceptronStepProtocol(Protocol):
+    def __call__(
+        self,
+        classifier: Classifier,
+        sample: Sample,
+        label: Label,
+        hook: Optional[Hook] = None,
+    ) -> Classifier:
+        ...
+
+
+def offset_perceptron_step(
     classifier: Classifier, sample: Sample, label: Label, hook: Optional[Hook] = None
 ) -> Classifier:
     result = np.dot(classifier.theta, sample) + classifier.theta_0
@@ -58,7 +71,11 @@ def perceptron_step(
 
 
 def perceptron(
-    data: Data, labels: Labels, params: Params, hook: Optional[Hook] = None
+    data: Data,
+    labels: Labels,
+    params: Params,
+    perceptron_step: PerceptronStepProtocol,
+    hook: Optional[Hook] = None,
 ) -> Tuple[np.ndarray, np.ndarray]:
     dimension = data.shape[0]
 
@@ -125,7 +142,11 @@ def eval_classifier(
     learner, data_train, labels_train, data_test: np.ndarray, labels_test
 ):
     theta, theta_0 = learner(
-        data=data_train, labels=labels_train, params={"T": 100}, hook=None
+        data=data_train,
+        labels=labels_train,
+        params={"T": 100},
+        perceptron_step=offset_perceptron_step,
+        hook=None,
     )
 
     return score(data_test, labels_test, theta, theta_0) / data_test.shape[1]
