@@ -170,14 +170,14 @@ def perceptron_engine(
 
     classifier = Classifier.initial(dimension=dimension, is_averaged=is_averaged)
 
-    def single_sample_reducer(acc, cur):
+    def single_sample_reducer(acc: Classifier, cur: Tuple[Sample, Label]):
         return perceptron_step(classifier=acc, sample=cur[0], label=cur[1], hook=hook)
 
     def perceptron_iteration_function(cur_classifier: Classifier) -> Classifier:
         return reduce(single_sample_reducer, zip(data.T, labels.T), cur_classifier)
 
     def perceptron_iteration_predicate(cur_classifier: Classifier) -> bool:
-        return cur_classifier.has_mistakes or cur_classifier.is_averaged
+        return cur_classifier.has_mistakes
 
     return iterate_while(
         initial=classifier,
@@ -200,6 +200,23 @@ def perceptron(
         labels=labels,
         params=params,
         is_averaged=False,
+        perceptron_step=perceptron_step,
+        hook=hook,
+    )
+
+
+def averaged_perceptron(
+    data: Data,
+    labels: Labels,
+    params: Params,
+    perceptron_step: PerceptronStepProtocol,
+    hook: Optional[Hook] = None,
+) -> Classifier:
+    return perceptron_engine(
+        data=data,
+        labels=labels,
+        params=params,
+        is_averaged=True,
         perceptron_step=perceptron_step,
         hook=hook,
     )
@@ -242,28 +259,6 @@ def averaged_perceptron_legacy(
         theta_0_sum=theta_0_avg,
         number_of_runs=number_of_runs,
     )
-
-
-def averaged_perceptron(
-    data: Data,
-    labels: Labels,
-    params: Params,
-    perceptron_step: PerceptronStepProtocol,
-    hook: Optional[Hook] = None,
-) -> Classifier:
-    classifier = perceptron_engine(
-        data=data,
-        labels=labels,
-        params=params,
-        is_averaged=True,
-        perceptron_step=perceptron_step,
-        hook=hook,
-    )
-    print(f"NEW NUMBER OF RUNS: {classifier.number_of_runs}")
-    print(
-        f"NEW_sum = {classifier.theta_sum, classifier.theta_0_sum, classifier.number_of_runs}"
-    )
-    return classifier
 
 
 def y(x, th, th0):
