@@ -2,8 +2,6 @@ from itertools import accumulate, takewhile
 from perceptron.iteration import (
     accumulate_iterate_while,
     iterate_while,
-    reduce_while,
-    reduce_until,
 )
 
 
@@ -42,42 +40,6 @@ def test_iteration_ideas():
             accumulate(range(10000000000), lambda t, _: t * 2, initial=1),
         )
     ][-1] == 512
-
-
-def test_reduce_while():
-    def reducer_function(acc, cur):
-        return acc + cur
-
-    def while_predicate(acc, _):
-        return acc < 11
-
-    assert (
-        reduce_while(
-            function=reducer_function,
-            sequence=range(1000000000),
-            initial=0,
-            predicate=while_predicate,
-        )
-        == 15
-    )
-
-
-def test_reduce_until():
-    def reducer_function(acc, cur):
-        return acc + cur
-
-    def until_predicate(acc, _):
-        return acc > 11
-
-    assert (
-        reduce_until(
-            function=reducer_function,
-            sequence=range(1000000000),
-            initial=0,
-            predicate=until_predicate,
-        )
-        == 15
-    )
 
 
 def test_accumulate_iterate_while():
