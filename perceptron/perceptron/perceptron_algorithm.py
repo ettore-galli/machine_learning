@@ -25,8 +25,11 @@ ThetaZero = float
 Hook = Callable[[Sample, Label, Theta, ThetaZero], None]
 
 
+# pylint: disable=too-many-instance-attributes
 @dataclass
 class Classifier:
+    is_averaged: bool
+    dimension: int
     theta: Theta
     theta_0: ThetaZero
     theta_sum: Theta
@@ -35,8 +38,10 @@ class Classifier:
     has_mistakes: bool = False
 
     @staticmethod
-    def initial(dimension: int) -> Classifier:
+    def initial(dimension: int, is_averaged: bool) -> Classifier:
         return Classifier(
+            is_averaged=is_averaged,
+            dimension=dimension,
             theta=np.zeros(dimension),
             theta_0=0,
             theta_sum=np.zeros(dimension),
@@ -52,6 +57,8 @@ class Classifier:
         theta_0 = self.theta_0 + delta_theta_0
 
         return Classifier(
+            is_averaged=self.is_averaged,
+            dimension=self.dimension,
             theta=theta,
             theta_0=theta_0,
             theta_sum=self.theta_sum + theta,
@@ -59,6 +66,27 @@ class Classifier:
             has_mistakes=True,
             number_of_runs=self.number_of_runs + 1,
         )
+
+    def get_classifier_coefficents(self) -> Tuple[np.ndarray, np.ndarray]:
+        return (
+            (
+                self.theta_avg.reshape((self.dimension, 1)),
+                np.array([self.theta_0_avg]),
+            )
+            if self.is_averaged
+            else (
+                self.theta.reshape((self.dimension, 1)),
+                np.array([self.theta_0]),
+            )
+        )
+
+    @property
+    def theta_avg(self) -> Theta:
+        return self.theta_sum / self.number_of_runs
+
+    @property
+    def theta_0_avg(self) -> ThetaZero:
+        return self.theta_0_sum / self.number_of_runs
 
 
 # pylint: disable=too-few-public-methods
@@ -68,6 +96,19 @@ class PerceptronStepProtocol(Protocol):
         classifier: Classifier,
         sample: Sample,
         label: Label,
+        hook: Optional[Hook] = None,
+    ) -> Classifier:
+        ...
+
+
+class PerceptronAlgorithmProtocol(Protocol):
+    # pylint: disable=too-many-arguments
+    def __call__(
+        self,
+        data: Data,
+        labels: Labels,
+        params: Params,
+        perceptron_step: PerceptronStepProtocol,
         hook: Optional[Hook] = None,
     ) -> Classifier:
         ...
@@ -90,21 +131,23 @@ def offset_perceptron_step(
     return classifier
 
 
-def perceptron(
+# pylint: disable=too-many-arguments
+def perceptron_engine(
     data: Data,
     labels: Labels,
     params: Params,
+    is_averaged: bool,
     perceptron_step: PerceptronStepProtocol,
     hook: Optional[Hook] = None,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> Classifier:
     dimension = data.shape[0]
 
-    classifier = Classifier.initial(dimension)
+    classifier = Classifier.initial(dimension=dimension, is_averaged=is_averaged)
 
     def single_sample_reducer(acc, cur):
         return perceptron_step(classifier=acc, sample=cur[0], label=cur[1], hook=hook)
 
-    classifier = iterate_while(
+    return iterate_while(
         initial=classifier,
         iteration_function=(
             lambda classifier: reduce(
@@ -115,18 +158,57 @@ def perceptron(
         maximum_iterations=params.get("T", PERCEPTRON_DEFAULT_ITERATIONS),
         evaluate_predicate_post=True,
     )
-    return classifier.theta.reshape((dimension, 1)), np.array([classifier.theta_0])
+
+
+def perceptron(
+    data: Data,
+    labels: Labels,
+    params: Params,
+    perceptron_step: PerceptronStepProtocol,
+    hook: Optional[Hook] = None,
+) -> Classifier:
+    # dimension = data.shape[0]
+
+    # classifier = Classifier.initial(dimension)
+
+    # def single_sample_reducer(acc, cur):
+    #     return perceptron_step(classifier=acc, sample=cur[0], label=cur[1], hook=hook)
+
+    # return iterate_while(
+    #     initial=classifier,
+    #     iteration_function=(
+    #         lambda classifier: reduce(
+    #             single_sample_reducer, zip(data.T, labels.T), classifier
+    #         )
+    #     ),
+    #     while_predicate=lambda classifier: classifier.has_mistakes,
+    #     maximum_iterations=params.get("T", PERCEPTRON_DEFAULT_ITERATIONS),
+    #     evaluate_predicate_post=True,
+    # )
+    return perceptron_engine(
+        data=data,
+        labels=labels,
+        params=params,
+        is_averaged=False,
+        perceptron_step=perceptron_step,
+        hook=hook,
+    )
 
 
 def averaged_perceptron(
-    data: Data, labels: Labels, params: Params, hook: Optional[Hook] = None
-) -> Tuple[np.ndarray, np.ndarray]:
+    data: Data,
+    labels: Labels,
+    params: Params,
+    perceptron_step: PerceptronStepProtocol,
+    hook: Optional[Hook] = None,
+) -> Classifier:
     dimension = data.shape[0]
     theta = np.zeros(dimension)
     theta_0 = 0
     theta_avg = np.zeros(dimension)
     theta_0_avg = 0
     number_of_runs = 0
+    _ = perceptron_step
     for _ in range(params.get("T", 10)):
         for sample, label in zip(data.T, labels.T):
             result = np.dot(theta, sample) + theta_0
@@ -141,8 +223,25 @@ def averaged_perceptron(
             theta_0_avg += theta_0
             number_of_runs += 1
 
-    return (theta_avg / number_of_runs).reshape((dimension, 1)), np.array(
-        [theta_0_avg / number_of_runs]
+    # return (theta_avg / number_of_runs).reshape((dimension, 1)), np.array(
+    #     [theta_0_avg / number_of_runs]
+    # )
+    # return perceptron_engine(
+    #     data=data,
+    #     labels=labels,
+    #     params=params,
+    #     is_averaged=True,
+    #     perceptron_step=perceptron_step,
+    #     hook=hook,
+    # )
+    return Classifier(
+        is_averaged=True,
+        dimension=dimension,
+        theta=theta,
+        theta_0=theta_0,
+        theta_sum=theta_avg,
+        theta_0_sum=theta_0_avg,
+        number_of_runs=number_of_runs,
     )
 
 
@@ -159,7 +258,11 @@ def score(data, labels, th, th0):
 
 
 def eval_classifier(
-    learner, data_train, labels_train, data_test: np.ndarray, labels_test
+    learner: PerceptronAlgorithmProtocol,
+    data_train,
+    labels_train,
+    data_test: np.ndarray,
+    labels_test,
 ):
     theta, theta_0 = learner(
         data=data_train,
@@ -167,7 +270,7 @@ def eval_classifier(
         params={"T": 100},
         perceptron_step=offset_perceptron_step,
         hook=None,
-    )
+    ).get_classifier_coefficents()
 
     return score(data_test, labels_test, theta, theta_0) / data_test.shape[1]
 

@@ -40,10 +40,12 @@ def test_perceptron():
         hook=hook,
     )
 
-    print([x.tolist() for x in classifier])
+    classifier_coefficents = classifier.get_classifier_coefficents()
 
-    np.array_equal(classifier[0], np.array([-9.0, 18.0]))
-    assert classifier[1] == approx(2.0)
+    print([x.tolist() for x in classifier_coefficents])
+
+    np.array_equal(classifier_coefficents[0], np.array([-9.0, 18.0]))
+    assert classifier_coefficents[1] == approx(2.0)
 
 
 def test_averaged_perceptron():
@@ -51,12 +53,19 @@ def test_averaged_perceptron():
     labels: Labels = np.array([[1, -1, 1, -1]])
     params: Params = {"T": 100}
     hook: Hook = log_classifier_step
-    classifier = averaged_perceptron(data=data, labels=labels, params=params, hook=hook)
+    classifier = averaged_perceptron(
+        data=data,
+        labels=labels,
+        params=params,
+        perceptron_step=offset_perceptron_step,
+        hook=hook,
+    )
+    classifier_coefficents = classifier.get_classifier_coefficents()
+    print([x.tolist() for x in classifier_coefficents])
 
-    print([x.tolist() for x in classifier])
+    np.array_equal(classifier_coefficents[0], np.array([-9.0, 18.0]))
 
-    np.array_equal(classifier[0], np.array([-9.0, 18.0]))
-    assert classifier[1] == approx(1.9425)
+    assert classifier_coefficents[1] == approx(1.9425)
 
 
 def test_eval_classifier():
