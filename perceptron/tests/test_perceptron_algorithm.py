@@ -22,7 +22,7 @@ from perceptron.perceptron_algorithm import (
 )
 
 
-def plot_classifier(sample: Sample, label: Label, theta: Theta, theta_0=ThetaZero):
+def log_classifier_step(sample: Sample, label: Label, theta: Theta, theta_0=ThetaZero):
     print(sample, label, theta, theta_0)
 
 
@@ -30,7 +30,7 @@ def test_perceptron():
     data: Data = np.array([[2, 3, 9, 12], [5, 1, 6, 5]])
     labels: Labels = np.array([[1, -1, 1, -1]])
     params: Params = {"T": 100}
-    hook: Hook = plot_classifier
+    hook: Hook = log_classifier_step
     classifier = perceptron(data=data, labels=labels, params=params, hook=hook)
 
     print([x.tolist() for x in classifier])
@@ -43,7 +43,7 @@ def test_averaged_perceptron():
     data: Data = np.array([[2, 3, 9, 12], [5, 1, 6, 5]])
     labels: Labels = np.array([[1, -1, 1, -1]])
     params: Params = {"T": 100}
-    hook: Hook = plot_classifier
+    hook: Hook = log_classifier_step
     classifier = averaged_perceptron(data=data, labels=labels, params=params, hook=hook)
 
     print([x.tolist() for x in classifier])
