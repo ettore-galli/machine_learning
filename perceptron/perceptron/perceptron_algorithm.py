@@ -29,15 +29,35 @@ Hook = Callable[[Sample, Label, Theta, ThetaZero], None]
 class Classifier:
     theta: Theta
     theta_0: ThetaZero
+    theta_sum: Theta
+    theta_0_sum: ThetaZero
+    number_of_runs: int
     has_mistakes: bool = False
+
+    @staticmethod
+    def initial(dimension: int) -> Classifier:
+        return Classifier(
+            theta=np.zeros(dimension),
+            theta_0=0,
+            theta_sum=np.zeros(dimension),
+            theta_0_sum=0,
+            number_of_runs=0,
+            has_mistakes=False,
+        )
 
     def with_mistake_correction(
         self, delta_theta: Theta, delta_theta_0: ThetaZero
     ) -> Classifier:
+        theta = self.theta + delta_theta
+        theta_0 = self.theta_0 + delta_theta_0
+
         return Classifier(
-            theta=self.theta + delta_theta,
-            theta_0=self.theta_0 + delta_theta_0,
+            theta=theta,
+            theta_0=theta_0,
+            theta_sum=self.theta_sum + theta,
+            theta_0_sum=self.theta_0_sum + theta_0,
             has_mistakes=True,
+            number_of_runs=self.number_of_runs + 1,
         )
 
 
@@ -79,7 +99,7 @@ def perceptron(
 ) -> Tuple[np.ndarray, np.ndarray]:
     dimension = data.shape[0]
 
-    classifier = Classifier(theta=np.zeros(dimension), theta_0=0)
+    classifier = Classifier.initial(dimension)
 
     def single_sample_reducer(acc, cur):
         return perceptron_step(classifier=acc, sample=cur[0], label=cur[1], hook=hook)
