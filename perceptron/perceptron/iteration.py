@@ -1,11 +1,16 @@
 from itertools import accumulate, takewhile
-from typing import Any, Callable, List
+from typing import Any, Callable, List, TypeVar
+
+T = TypeVar("T")
+
+IterationFunctionType = Callable[[T], T]
+WhilePredicateType = Callable[[T], bool]
 
 
 def accumulate_iterate_while(
     initial: Any,
-    iteration_function: Callable[[Any], Any],
-    while_predicate: Callable[[Any], bool],
+    iteration_function: IterationFunctionType,
+    while_predicate: WhilePredicateType,
     maximum_iterations: int,
     evaluate_predicate_post: bool = False,
 ) -> List[Any]:
@@ -25,8 +30,8 @@ def accumulate_iterate_while(
 
 def iterate_while(
     initial: Any,
-    iteration_function: Callable[[Any], Any],
-    while_predicate: Callable[[Any], bool],
+    iteration_function: IterationFunctionType,
+    while_predicate: WhilePredicateType,
     maximum_iterations: int,
     evaluate_predicate_post: bool = False,
 ) -> Any:
