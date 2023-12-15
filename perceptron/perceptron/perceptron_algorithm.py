@@ -167,24 +167,6 @@ def perceptron(
     perceptron_step: PerceptronStepProtocol,
     hook: Optional[Hook] = None,
 ) -> Classifier:
-    # dimension = data.shape[0]
-
-    # classifier = Classifier.initial(dimension)
-
-    # def single_sample_reducer(acc, cur):
-    #     return perceptron_step(classifier=acc, sample=cur[0], label=cur[1], hook=hook)
-
-    # return iterate_while(
-    #     initial=classifier,
-    #     iteration_function=(
-    #         lambda classifier: reduce(
-    #             single_sample_reducer, zip(data.T, labels.T), classifier
-    #         )
-    #     ),
-    #     while_predicate=lambda classifier: classifier.has_mistakes,
-    #     maximum_iterations=params.get("T", PERCEPTRON_DEFAULT_ITERATIONS),
-    #     evaluate_predicate_post=True,
-    # )
     return perceptron_engine(
         data=data,
         labels=labels,
