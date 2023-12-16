@@ -25,21 +25,22 @@ def test_iteration_ideas():
         32768,
         65536,
     ]
-    assert [
-        q
-        for q in takewhile(
+    assert list(
+        takewhile(
             lambda k: k < 1000,
             accumulate(range(10000000000), lambda t, _: t * 2, initial=1),
         )
-    ] == [1, 2, 4, 8, 16, 32, 64, 128, 256, 512]
+    ) == [1, 2, 4, 8, 16, 32, 64, 128, 256, 512]
 
-    assert [
-        q
-        for q in takewhile(
-            lambda k: k < 1000,
-            accumulate(range(10000000000), lambda t, _: t * 2, initial=1),
-        )
-    ][-1] == 512
+    assert (
+        list(
+            takewhile(
+                lambda k: k < 1000,
+                accumulate(range(10000000000), lambda t, _: t * 2, initial=1),
+            )
+        )[-1]
+        == 512
+    )
 
 
 def test_accumulate_iterate_while():

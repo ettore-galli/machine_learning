@@ -2,7 +2,7 @@ from perceptron.polynomial_features import (
     polynomial_features,
     cross_product,
     concat_combiner,
-    numerical_polynomial_features
+    numerical_polynomial_features,
 )
 
 

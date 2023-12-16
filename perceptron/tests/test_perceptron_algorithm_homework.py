@@ -1,17 +1,13 @@
 # pylint: disable=too-many-lines
 import numpy as np
 
-from pytest import approx
 
 from perceptron.perceptron_algorithm import (
-    Classifier,
-    offset_perceptron_step,
     origin_perceptron_step,
     perceptron,
     Data,
     Labels,
     Params,
-    Hook,
     Sample,
     Label,
     Theta,
