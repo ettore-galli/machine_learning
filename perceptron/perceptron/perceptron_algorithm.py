@@ -35,7 +35,7 @@ class Classifier:
     theta_sum: Theta
     theta_0_sum: ThetaZero
     number_of_runs: int
-    has_mistakes: bool = False
+    number_of_mistakes: int = 0
 
     @staticmethod
     def initial(dimension: int, is_averaged: bool) -> Classifier:
@@ -47,7 +47,22 @@ class Classifier:
             theta_sum=np.zeros(dimension),
             theta_0_sum=0,
             number_of_runs=0,
-            has_mistakes=False,
+            number_of_mistakes=0,
+        )
+
+    @staticmethod
+    def initial_classifier(
+        theta: Theta, theta_0: ThetaZero, is_averaged: bool
+    ) -> Classifier:
+        return Classifier(
+            is_averaged=is_averaged,
+            dimension=theta.shape[0],
+            theta=theta,
+            theta_0=theta_0,
+            theta_sum=theta,
+            theta_0_sum=theta_0,
+            number_of_runs=0,
+            number_of_mistakes=0,
         )
 
     def with_mistake_correction(
@@ -63,7 +78,7 @@ class Classifier:
             theta_0=theta_0,
             theta_sum=self.theta_sum,
             theta_0_sum=self.theta_0_sum,
-            has_mistakes=True,
+            number_of_mistakes=self.number_of_mistakes + 1,
             number_of_runs=self.number_of_runs,
         )
 
@@ -75,7 +90,7 @@ class Classifier:
             theta_0=self.theta_0,
             theta_sum=self.theta_sum + self.theta,
             theta_0_sum=self.theta_0_sum + self.theta_0,
-            has_mistakes=self.has_mistakes,
+            number_of_mistakes=self.number_of_mistakes,
             number_of_runs=self.number_of_runs + 1,
         )
 
@@ -91,6 +106,10 @@ class Classifier:
                 np.array([self.theta_0]),
             )
         )
+
+    @property
+    def has_mistakes(self) -> bool:
+        return self.number_of_mistakes > 0
 
     @property
     def theta_avg(self) -> Theta:
@@ -157,6 +176,29 @@ def offset_perceptron_step(
     return classifier.with_average_data()
 
 
+def origin_perceptron_step(
+    classifier: Classifier, sample: Sample, label: Label, hook: Optional[Hook] = None
+) -> Classifier:
+    result = np.dot(classifier.theta, sample)
+    margin = label * result
+
+    if margin <= 0:
+        classifier_with_mistake_correction = classifier.with_mistake_correction(
+            delta_theta=label * sample, delta_theta_0=0.0
+        )
+        if hook:
+            hook(
+                sample,
+                label,
+                classifier_with_mistake_correction.theta,
+                classifier_with_mistake_correction.theta_0,
+            )
+
+        return classifier_with_mistake_correction.with_average_data()
+
+    return classifier.with_average_data()
+
+
 # pylint: disable=too-many-arguments
 def perceptron_engine(
     data: Data,
@@ -165,10 +207,13 @@ def perceptron_engine(
     is_averaged: bool,
     perceptron_step: PerceptronStepProtocol,
     hook: Optional[Hook] = None,
+    initial: Optional[Classifier] = None,
 ) -> Classifier:
     dimension = data.shape[0]
 
-    classifier = Classifier.initial(dimension=dimension, is_averaged=is_averaged)
+    classifier = initial or Classifier.initial(
+        dimension=dimension, is_averaged=is_averaged
+    )
 
     def single_sample_reducer(acc: Classifier, cur: Tuple[Sample, Label]):
         return perceptron_step(classifier=acc, sample=cur[0], label=cur[1], hook=hook)
@@ -194,6 +239,7 @@ def perceptron(
     params: Params,
     perceptron_step: PerceptronStepProtocol,
     hook: Optional[Hook] = None,
+    initial: Optional[Classifier] = None,
 ) -> Classifier:
     return perceptron_engine(
         data=data,
@@ -202,6 +248,7 @@ def perceptron(
         is_averaged=False,
         perceptron_step=perceptron_step,
         hook=hook,
+        initial=initial,
     )
 
 
@@ -211,6 +258,7 @@ def averaged_perceptron(
     params: Params,
     perceptron_step: PerceptronStepProtocol,
     hook: Optional[Hook] = None,
+    initial: Optional[Classifier] = None,
 ) -> Classifier:
     return perceptron_engine(
         data=data,
@@ -219,6 +267,7 @@ def averaged_perceptron(
         is_averaged=True,
         perceptron_step=perceptron_step,
         hook=hook,
+        initial=initial,
     )
 
 
