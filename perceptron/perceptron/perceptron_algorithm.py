@@ -36,6 +36,7 @@ class Classifier:
     theta_0_sum: ThetaZero
     number_of_runs: int
     number_of_mistakes: int = 0
+    number_of_mistakes_for_round: int = 0
 
     @staticmethod
     def initial(dimension: int, is_averaged: bool) -> Classifier:
@@ -48,6 +49,7 @@ class Classifier:
             theta_0_sum=0,
             number_of_runs=0,
             number_of_mistakes=0,
+            number_of_mistakes_for_round=0,
         )
 
     @staticmethod
@@ -63,6 +65,7 @@ class Classifier:
             theta_0_sum=theta_0,
             number_of_runs=0,
             number_of_mistakes=0,
+            number_of_mistakes_for_round=0,
         )
 
     def with_mistake_correction(
@@ -79,6 +82,7 @@ class Classifier:
             theta_sum=self.theta_sum,
             theta_0_sum=self.theta_0_sum,
             number_of_mistakes=self.number_of_mistakes + 1,
+            number_of_mistakes_for_round=self.number_of_mistakes_for_round + 1,
             number_of_runs=self.number_of_runs,
         )
 
@@ -91,7 +95,21 @@ class Classifier:
             theta_sum=self.theta_sum + self.theta,
             theta_0_sum=self.theta_0_sum + self.theta_0,
             number_of_mistakes=self.number_of_mistakes,
+            number_of_mistakes_for_round=self.number_of_mistakes_for_round,
             number_of_runs=self.number_of_runs + 1,
+        )
+
+    def reset_perceptron_iteration(self) -> Classifier:
+        return Classifier(
+            is_averaged=self.is_averaged,
+            dimension=self.dimension,
+            theta=self.theta,
+            theta_0=self.theta_0,
+            theta_sum=self.theta_sum,
+            theta_0_sum=self.theta_0_sum,
+            number_of_mistakes=self.number_of_mistakes,
+            number_of_mistakes_for_round=0,
+            number_of_runs=self.number_of_runs,
         )
 
     def get_classifier_coefficents(self) -> Tuple[np.ndarray, np.ndarray]:
@@ -219,7 +237,11 @@ def perceptron_engine(
         return perceptron_step(classifier=acc, sample=cur[0], label=cur[1], hook=hook)
 
     def perceptron_iteration_function(cur_classifier: Classifier) -> Classifier:
-        return reduce(single_sample_reducer, zip(data.T, labels.T), cur_classifier)
+        return reduce(
+            single_sample_reducer,
+            zip(data.T, labels.T),
+            cur_classifier.reset_perceptron_iteration(),
+        )
 
     def perceptron_iteration_predicate(cur_classifier: Classifier) -> bool:
         return cur_classifier.has_mistakes
