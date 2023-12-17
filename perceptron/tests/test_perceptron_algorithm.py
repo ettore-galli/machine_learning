@@ -61,6 +61,7 @@ def test_averaged_perceptron():
         perceptron_step=offset_perceptron_step,
         hook=hook,
     )
+    print(classifier)
     classifier_coefficents = classifier.get_classifier_coefficents()
     print([x.tolist() for x in classifier_coefficents])
 

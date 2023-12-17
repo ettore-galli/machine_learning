@@ -237,6 +237,7 @@ def perceptron_engine(
         return perceptron_step(classifier=acc, sample=cur[0], label=cur[1], hook=hook)
 
     def perceptron_iteration_function(cur_classifier: Classifier) -> Classifier:
+        print("perceptron iteration")
         return reduce(
             single_sample_reducer,
             zip(data.T, labels.T),
@@ -244,7 +245,11 @@ def perceptron_engine(
         )
 
     def perceptron_iteration_predicate(cur_classifier: Classifier) -> bool:
-        return cur_classifier.has_mistakes
+        return (
+            cur_classifier.has_mistakes
+            if cur_classifier.is_averaged
+            else (cur_classifier.number_of_mistakes_for_round > 0)
+        )
 
     return iterate_while(
         initial=classifier,

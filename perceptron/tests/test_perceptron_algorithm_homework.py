@@ -51,10 +51,10 @@ def test_hw_1a1b():
 
 
 def test_hw_1c():
-    # data: Data = np.array([[200, 800, 200, 800], [0.2, 0.2, 0.8, 0.8], [1, 1, 1, 1]])
-    data: Data = np.array([[0.2, 0.8, 0.2, 0.8], [0.2, 0.2, 0.8, 0.8], [1, 1, 1, 1]])
+    data: Data = np.array([[200, 800, 200, 800], [0.2, 0.2, 0.8, 0.8], [1, 1, 1, 1]])
+    # data: Data = np.array([[0.2, 0.8, 0.2, 0.8], [0.2, 0.2, 0.8, 0.8], [1, 1, 1, 1]])
     labels: Labels = np.array([[-1, -1, 1, 1]])
-    params: Params = {"T": 1000}
+    params: Params = {"T": 10000}
 
     classifier = perceptron(
         data=data,
@@ -189,7 +189,7 @@ def test_hw_2g():
     )
 
     labels: Labels = np.array([[1, 1, -1, -1, 1, 1]])
-    params: Params = {"T": 1000000000000}
+    params: Params = {"T": 1000}
 
     classifier = perceptron(
         data=data,
@@ -200,5 +200,6 @@ def test_hw_2g():
     )
 
     classifier_coefficents = classifier.get_classifier_coefficents()
+
     print(classifier)
     print(classifier_coefficents)
