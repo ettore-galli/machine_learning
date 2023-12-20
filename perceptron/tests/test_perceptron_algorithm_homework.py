@@ -75,7 +75,7 @@ def test_hw_1d():
     # )
     data: Data = np.array([[0.2, 0.8, 0.2, 0.8], [0.2, 0.2, 0.8, 0.8], [1, 1, 1, 1]])
     labels: Labels = np.array([[-1, -1, 1, 1]])
-    # theta = np.array(
+    # Example: theta = np.array(
     #     [
     #         [0],
     #         [1],

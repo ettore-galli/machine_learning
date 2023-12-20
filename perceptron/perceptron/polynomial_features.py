@@ -1,49 +1,63 @@
 from functools import reduce
-from typing import Any, Callable, List
+
+from typing import Any, Callable, Generator, Iterable, List, Tuple
 
 
 def concat_combiner(alfa: Any, beta: Any) -> Any:
     return alfa + beta
 
 
+def concat_couples_combiner(alfa: Tuple, beta: Tuple) -> Any:
+    return tuple(list(alfa) + list(beta))
+
+
 def product_combiner(alfa: Any, beta: Any) -> Any:
     return alfa * beta
 
 
-def cross_product(
-    alfa: List,
-    beta: List,
-    combiner: Callable[[Any, Any], Any] = concat_combiner,
-) -> List:
-    combinations = [(a, b) for a in range(len(alfa)) for b in range(len(beta))]
-    return [combiner(alfa[a], beta[b]) for a, b in combinations]
+def unique_combinations_indices(
+    items: int,
+    order: int,
+) -> Generator:
+    root = tuple(range(items))
+
+    def tuplize(item):
+        return item if isinstance(item, tuple) else (item,)
+
+    def combinations_couple(alfa: Tuple, beta: Tuple):
+        return (
+            (tuplize(a) + tuplize(b) for a in alfa for b in beta)
+            if alfa and beta
+            else (tuplize(item) for item in beta or alfa)
+        )
+
+    def comb_reduce(acc, _):
+        return combinations_couple(acc, root)
+
+    item: Generator
+    for item in reduce(comb_reduce, range(order), ()):
+        if sorted(item) == list(item):
+            yield item
 
 
-def unique_cross_product(
-    alfa: List,
-    beta: List,
-    combiner: Callable[[Any, Any], Any] = concat_combiner,
-) -> List:
-    combinations_base = [(a, b) for a in range(len(alfa)) for b in range(len(beta))]
-    combinations: List = reduce(
-        lambda acc, cur: (acc + [cur])
-        if (cur not in acc and (cur[1], cur[0]) not in acc)
-        else acc,
-        combinations_base,
-        [],
-    )
-    return [combiner(alfa[a], beta[b]) for a, b in combinations]
+def unique_combinations(
+    items: List,
+    order: int,
+) -> Generator:
+    for indices in unique_combinations_indices(items=len(items), order=order):
+        yield (items[index] for index in indices)
 
 
 def polynomial_features(
-    data: List, degree: int, one: Any = 1, combiner: Callable = product_combiner
+    data: Iterable, degree: int, one: Any = 1, combiner: Callable = product_combiner
 ) -> List:
     features = [one]
-    product = features
-    for _ in range(degree):
-        product = unique_cross_product(data, product, combiner=combiner)
+    for degree_prog in range(degree):
+        product = [
+            reduce(combiner, item)
+            for item in unique_combinations(items=list(data), order=degree_prog + 1)
+        ]
         features.extend(product)
-
     return features
 
 
