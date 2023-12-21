@@ -15,7 +15,7 @@ def product_combiner(alfa: Any, beta: Any) -> Any:
     return alfa * beta
 
 
-def unique_combinations_indices(
+def self_crossproduct_indices(
     items: int,
     order: int,
 ) -> Generator:
@@ -31,12 +31,20 @@ def unique_combinations_indices(
             else (tuplize(item) for item in beta or alfa)
         )
 
-    def comb_reduce(acc, _):
+    def combinations_reduce(acc, _):
         return combinations_couple(acc, root)
 
     item: Generator
 
-    for item in reduce(comb_reduce, range(order), ()):
+    for item in reduce(combinations_reduce, range(order), ()):
+        yield item
+
+
+def unique_combinations_indices(
+    items: int,
+    order: int,
+) -> Generator:
+    for item in self_crossproduct_indices(items=items, order=order):
         if sorted(item) == list(item):
             yield item
 

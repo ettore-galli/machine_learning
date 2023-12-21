@@ -3,9 +3,44 @@ from perceptron.polynomial_features import (
     polynomial_features,
     concat_combiner,
     numerical_polynomial_features,
+    self_crossproduct_indices,
     unique_combinations,
     unique_combinations_indices,
 )
+
+
+def test_self_crossproduct_indices():
+    got = list(self_crossproduct_indices(items=3, order=3))
+    want = [
+        (0, 0, 0),
+        (0, 0, 1),
+        (0, 0, 2),
+        (0, 1, 0),
+        (0, 1, 1),
+        (0, 1, 2),
+        (0, 2, 0),
+        (0, 2, 1),
+        (0, 2, 2),
+        (1, 0, 0),
+        (1, 0, 1),
+        (1, 0, 2),
+        (1, 1, 0),
+        (1, 1, 1),
+        (1, 1, 2),
+        (1, 2, 0),
+        (1, 2, 1),
+        (1, 2, 2),
+        (2, 0, 0),
+        (2, 0, 1),
+        (2, 0, 2),
+        (2, 1, 0),
+        (2, 1, 1),
+        (2, 1, 2),
+        (2, 2, 0),
+        (2, 2, 1),
+        (2, 2, 2),
+    ]
+    assert sorted(got) == sorted(want)
 
 
 def test_unique_combinations_indices():
