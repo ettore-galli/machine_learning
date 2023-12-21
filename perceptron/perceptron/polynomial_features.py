@@ -35,6 +35,7 @@ def unique_combinations_indices(
         return combinations_couple(acc, root)
 
     item: Generator
+
     for item in reduce(comb_reduce, range(order), ()):
         if sorted(item) == list(item):
             yield item

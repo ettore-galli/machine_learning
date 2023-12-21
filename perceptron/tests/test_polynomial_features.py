@@ -166,19 +166,44 @@ def test_polynomial_features_large():
 
 
 def test_numerical_polynomial_features():
-    data = [1.25, 2.35]
-    got = numerical_polynomial_features(data, degree=3)
+    data = [3.0, 4.0, 5.0]
+    got = numerical_polynomial_features(data, degree=4)
     want = [
         1.0,
-        1.25,
-        1.5625,
-        1.953125,
-        2.35,
-        2.9375,
-        3.671875,
-        5.522500000000001,
-        6.903125,
-        12.977875000000003,
+        3.0,
+        4.0,
+        5.0,
+        9.0,
+        12.0,
+        15.0,
+        16.0,
+        20.0,
+        25.0,
+        27.0,
+        36.0,
+        45.0,
+        48.0,
+        60.0,
+        75.0,
+        64.0,
+        80.0,
+        100.0,
+        125.0,
+        81.0,
+        108.0,
+        135.0,
+        144.0,
+        180.0,
+        225.0,
+        192.0,
+        240.0,
+        300.0,
+        375.0,
+        256.0,
+        320.0,
+        400.0,
+        500.0,
+        625.0,
     ]
 
     assert sorted(got) == sorted(want)
