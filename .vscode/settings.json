@@ -2,7 +2,8 @@
     "python.formatting.provider": "autopep8",
     "python.pythonPath": "/Users/ettoregalli/Documents/SVILUPPO/python/venv3/bin/python",
     "python.testing.pytestArgs": [
-        "perceptron"
+        "-s",
+        "-vvv"
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true
