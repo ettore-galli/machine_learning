@@ -102,6 +102,7 @@ def train_network(
     train_loader: DataLoader,
     test_loader: DataLoader,
     num_epochs: int,
+    model_save_file: str,
 ):
     optimizer = torch.optim.SGD(model.parameters(), lr=0.2)
 
@@ -137,8 +138,10 @@ def use_network(model: NeuralNetwork):
         print(f"{example}, => {probs}")
 
 
-def training_main():
+def training_main(model_name: str):
     torch.manual_seed(123)
+
+    model_file = f"./saved-models/{model_name}.pth"
 
     model = NeuralNetwork(num_inputs=2, num_outputs=2, num_hidden_1=8, num_hidden_2=8)
     train_loader, test_loader = get_training_data()
@@ -148,10 +151,13 @@ def training_main():
         train_loader=train_loader,
         test_loader=test_loader,
         num_epochs=1000,
+        model_save_file=model_file,
     )
+
+    torch.save(model.state_dict(), model_file)
 
     use_network(model)
 
 
 if __name__ == "__main__":
-    training_main()
+    training_main("example-1")
