@@ -59,6 +59,40 @@ def tensor_device():
     return ("tensor_device", alfa.device)
 
 
+def tensor_dimensions():
+    alfa = torch.tensor([1, 2, 3])
+    beta = torch.tensor([[[1], [2], [3]]])
+    return (
+        "tensor_dimensions",
+        [
+            ("alfa", alfa),
+            ("alfa unsqueeze 0", alfa.unsqueeze(dim=0)),
+            ("alfa unsqueeze 1", alfa.unsqueeze(dim=1)),
+            ("beta", beta),
+            ("alfa squeeze 0", beta.squeeze(dim=0)),
+            ("alfa squeeze 1", beta.squeeze(dim=1)),
+            ("alfa squeeze 2", beta.squeeze(dim=2)),
+        ],
+    )
+
+
+def tensor_reshape():
+    alfa = torch.tensor([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]])
+
+    
+    return (
+        "tensor_dimensions",
+        [
+            ("alfa", alfa),
+            ("alfa reshape", alfa.reshape(12)),
+            ("alfa reshape", alfa.reshape(4, 3)),
+            ("alfa reshape", alfa.reshape(3, 4)),
+            ("alfa reshape", alfa.reshape(2, 6)),
+            ("alfa reshape", alfa.reshape(6, 2)),
+        ],
+    )
+
+
 def tensors_deep_dive():
     for title, result in [
         broadcasting(),
@@ -66,6 +100,8 @@ def tensors_deep_dive():
         tensor_inplace(),
         tensor_op_out(),
         tensor_device(),
+        tensor_dimensions(),
+        tensor_reshape(),
     ]:
         print_title = f"\n*** {title} ***"
 
