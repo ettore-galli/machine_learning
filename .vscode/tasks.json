@@ -1,0 +1,10 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "python-debugpy-start",
+            "type": "shell",
+            "command": "${workspaceFolder}/huggingface/start.sh",
+        },
+    ]
+}

@@ -1,0 +1,7 @@
+# prod
+transformers[torch]
+torch
+datasets 
+
+# dev
+debugpy

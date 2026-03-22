@@ -4,6 +4,17 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+        
+        {
+            "name": "Attach to debugpy",
+            "type": "debugpy",
+            "request": "attach",
+            "connect": {
+                "host": "localhost",
+                "port": 5678
+            },
+            // "preLaunchTask": "python-debugpy-start"
+        },
         {
             "name": "CURRENT",
             "type": "debugpy",
