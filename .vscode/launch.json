@@ -4,7 +4,6 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        
         {
             "name": "Attach to debugpy",
             "type": "debugpy",
@@ -22,6 +21,17 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "cwd": "${fileDirname}" // <-- Usa la cartella del file corrente
+        },
+        {
+            "name": "FASTAI WORK CURRENT",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "cwd": "${fileDirname}" ,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
         }
     ]
 }

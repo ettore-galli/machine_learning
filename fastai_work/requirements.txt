@@ -1,0 +1,6 @@
+ddgs
+fastdownload
+
+black
+mypy
+ruff

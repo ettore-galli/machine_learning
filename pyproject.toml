@@ -1,0 +1,10 @@
+[tool.mypy]
+disallow_untyped_defs = true # Functions need to be annotated
+exclude = [
+  "my-project-\\d+", # Ignore temporary folder created by setuptools when building an sdist
+  "venv.*/",
+  "build/",
+  "dist/",
+  "*.ipynb",
+] 
+warn_unused_ignores = true
