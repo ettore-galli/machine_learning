@@ -43,7 +43,11 @@ def perform_source_data_search(
             urls=image_urls,
             dest=dest,
         )
-        resize_images(images_path / subpath_label, max_size=400)
+        resize_images(
+            images_path / subpath_label,
+            max_size=400,
+            dest=images_path / subpath_label,
+        )
 
 
 if __name__ == "__main__":
