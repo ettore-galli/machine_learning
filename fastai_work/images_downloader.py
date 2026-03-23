@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Iterable
 
 from ddgs import DDGS
+from ddgs.exceptions import DDGSException
 
 from fastai.vision.utils import resize_images, download_images
 
@@ -18,9 +19,16 @@ logging.basicConfig(
 log = logging.getLogger()
 
 
-def search_images(keywords, max_images=1):
+def search_images(keywords, max_images=1, max_retries=10):
     log.info("Looking for %s, max images = %s", keywords, max_images)
-    return DDGS().images(keywords, max_results=max_images)
+    for idx in range(max_retries):
+        log.info("Attempt %s of %s", idx + 1, max_retries)
+        try:
+            return DDGS().images(keywords, max_results=max_images)
+        except DDGSException as error:
+            log.error(error)
+    log.warning("Maximum attempts exceeded")
+    return []
 
 
 def get_image_path(images_path: Path, subpath_label: str) -> Path:

@@ -4,4 +4,4 @@ IMAGES_PATH = Path("fastai_work/images")
 
 IMAGE_CATEGORIES = ["bird", "forest"]
 
-MAX_IMAGES = 5
+MAX_IMAGES = 50
