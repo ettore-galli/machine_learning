@@ -15,7 +15,7 @@ from fastai.vision.all import (
     error_rate,
 )
 
-from fastai_work.base import BIRD_CLASSIFIER_WEIGHTS_FILE, IMAGES_PATH
+from fastai_work.base import BIRD_CLASSIFIER_WEIGHTS_FILE
 
 
 def get_learner(path: Path) -> Learner:
@@ -42,11 +42,3 @@ def perform_prediction(model: Learner, image: Path):
     is_bird, _, probs = model.predict(PILImage.create(image))
     print(f"This is a: {is_bird}.")
     print(f"Probability it's a bird: {probs[0]:.4f}")
-
-
-if __name__ == "__main__":
-    perform_model_training(IMAGES_PATH)
-    perform_prediction(
-        model=get_learner(IMAGES_PATH),
-        image=IMAGES_PATH / "undertest" / "1.png",
-    )
