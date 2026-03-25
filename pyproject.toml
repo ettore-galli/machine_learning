@@ -8,3 +8,8 @@ exclude = [
   "*.ipynb",
 ] 
 warn_unused_ignores = true
+
+[tool.ruff]
+extend-exclude = [
+    "*.ipynb",
+]
