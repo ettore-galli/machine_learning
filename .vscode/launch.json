@@ -23,6 +23,17 @@
             "cwd": "${fileDirname}" // <-- Usa la cartella del file corrente
         },
         {
+            "name": "CURRENT_PYTHONPATH",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "cwd": "${fileDirname}", 
+            "env": {
+                "PYTHONPATH": "${fileDirname}"
+            }
+        },
+        {
             "name": "FASTAI WORK CURRENT",
             "type": "debugpy",
             "request": "launch",
