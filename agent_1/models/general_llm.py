@@ -1,4 +1,4 @@
-from agent_1.models.general_llm_base import GeneralLLMBase
+from models.general_llm_base import GeneralLLMBase
 
 
 class GeneralLLM(GeneralLLMBase):

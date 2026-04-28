@@ -1,6 +1,6 @@
 import logging
 
-from agent_1.models.general_llm import GeneralLLM
+from models.general_llm import GeneralLLM
 
 logger = logging.getLogger(__name__)
 
