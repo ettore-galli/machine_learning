@@ -1,13 +1,12 @@
 # A
 
 from dataclasses import dataclass
-
 from logging import Logger
-
 from typing import Iterable, List
-from dotenv import load_dotenv
+
 import torch
-from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, pipeline
+from dotenv import load_dotenv
+from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 
 
 @dataclass(frozen=True)
@@ -53,7 +52,7 @@ class GeneralLLMBase:
                 self.logger.error(issue.message)
 
     def is_failure_issues(self, issues: Iterable[Issue]) -> bool:
-        return any(issue.success == False for issue in issues)
+        return any(issue.success is False for issue in issues)
 
     def prepare_propmpt(self, prompt: str) -> str:
         return prompt.strip() + "</s>"

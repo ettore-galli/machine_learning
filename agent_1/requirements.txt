@@ -1,6 +1,6 @@
-langchain
-langchain-huggingface
-transformers
-duckduckgo-search
-python-dotenv
-beautifulsoup4
+uv add langchain
+uv add langchain-huggingface
+uv add transformers
+uv add duckduckgo-search
+uv add python-dotenv
+uv add beautifulsoup4

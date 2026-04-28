@@ -1,9 +1,9 @@
 # A
 
-import os
 import re
+
 from dotenv import load_dotenv
-from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, pipeline
+from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 
 # ---------------------------
 # Setup
@@ -34,14 +34,15 @@ def pipe(prompt: str, **kwargs):
     return text.splitlines()[0].strip()
 
 
-
 # B
 
 # ---------------------------
 # Memory stores
 # ---------------------------
-history: list[str] = []       # chat turns: "You: ...", "Agent: ..."
-facts: dict[str, str] = {}    # normalized preferences, e.g., {"sport": "basketball", "food": "ramen"}
+history: list[str] = []  # chat turns: "You: ...", "Agent: ..."
+facts: dict[str, str] = (
+    {}
+)  # normalized preferences, e.g., {"sport": "basketball", "food": "ramen"}
 
 
 # C
@@ -59,6 +60,7 @@ def normalize_key(word: str) -> str:
     mapping = {"sports": "sport", "foods": "food", "songs": "song", "movies": "movie"}
     return mapping.get(word, word)
 
+
 def store_fact(user_message: str):
     """Capture simple ‘favorite X is Y’ and ‘I like/love Y’ facts."""
     m = FAV_PAT.search(user_message)
@@ -74,6 +76,7 @@ def store_fact(user_message: str):
 
 
 # D
+
 
 def answer_from_facts(user_message: str) -> str | None:
     """Answer from stored facts if the question references them."""
@@ -112,12 +115,12 @@ def answer_from_facts(user_message: str) -> str | None:
     return None
 
 
-
-
 # E
+
 
 def oneline(text: str) -> str:
     return text.strip().splitlines()[0].strip()
+
 
 def hard_sanitize(text: str) -> str:
     """Strip any leaked meta/instruction lines."""
@@ -127,18 +130,34 @@ def hard_sanitize(text: str) -> str:
         if not s:
             continue
         # Drop lines that look like meta/instructions
-        if any(w in s.lower() for w in [
-            "rule", "instruction", "do not", "never speak", "context:", "assistant:", "user:", "[", "]", ":", "You are"
-        ]):
+        if any(
+            w in s.lower()
+            for w in [
+                "rule",
+                "instruction",
+                "do not",
+                "never speak",
+                "context:",
+                "assistant:",
+                "user:",
+                "[",
+                "]",
+                ":",
+                "You are",
+            ]
+        ):
             continue
         lines.append(s)
     cleaned = " ".join(lines)
     # Secondary cleanup if anything slipped through
-    cleaned = re.sub(r"(do not|never speak|instruction).*", "", cleaned, flags=re.I).strip()
+    cleaned = re.sub(
+        r"(do not|never speak|instruction).*", "", cleaned, flags=re.I
+    ).strip()
     return oneline(cleaned) or "I don't know."
 
 
 # F
+
 
 # ---------------------------
 # Response logic

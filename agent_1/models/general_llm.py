@@ -15,5 +15,5 @@ class GeneralLLM(GeneralLLMBase):
                     no_repeat_ngram_size=3,
                 ),
                 **kwargs,
-            }
+            },
         )
