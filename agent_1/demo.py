@@ -2,7 +2,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-from models.llm_text_model import GeneralLLM
+from agent_1.models.general_llm import GeneralLLM
 
 
 def demo():
