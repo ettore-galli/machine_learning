@@ -1,4 +1,19 @@
 from models.gen_model_base import GeneralLLMBase
 
 
-class GeneralLLM(GeneralLLMBase): ...
+class GeneralLLM(GeneralLLMBase):
+    def perform(self, prompt: str, **kwargs) -> str:
+        return super().perform(
+            prompt,
+            **{
+                **dict(
+                    max_new_tokens=512,
+                    repetition_penalty=1.5,
+                    do_sample=True,
+                    top_k=50,
+                    length_penalty=1.0,
+                    no_repeat_ngram_size=3,
+                ),
+                **kwargs,
+            }
+        )
