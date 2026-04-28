@@ -16,7 +16,7 @@ class Issue:
 class GeneralLLMBase:
     def __init__(self, model_id: str, logger: Logger):
         self.model_id = model_id
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.device = self.infer_device()
         self.logger = logger
 
         load_dotenv()
@@ -31,6 +31,13 @@ class GeneralLLMBase:
 
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_id)
         self.model = AutoModelForSeq2SeqLM.from_pretrained(self.model_id)
+
+    def infer_device(self) -> str:
+        if torch.backends.mps.is_available():
+            return torch.backends.mps.get_name()
+        if torch.backends.cuda.is_available():
+            return torch.backends.cuda.get_name()
+        return "cpu"
 
     def verify_mandatory_envvars(self) -> List[Issue]:
         return [

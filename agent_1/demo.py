@@ -11,9 +11,11 @@ def demo():
         How are emnedding used as input of transformers?
         Assume knowledge of what an embedding is
         Assume LLM as context
-        Give a technical answer
+        Give a detailed answer
         """)
+    print("-" * 80)
     print(response)
+    print("-" * 80)
 
 
 if __name__ == "__main__":
