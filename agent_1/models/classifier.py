@@ -25,7 +25,10 @@ class ClassifierLLM(GeneralLLMBase):
 
         outputs = model(**inputs, **generation_params)
         predictions = torch.nn.functional.softmax(outputs.logits, dim=-1)
-        return predictions
+        return {
+            label: predictions[0][result_id].item()
+            for result_id, label in model.config.id2label.items()
+        }
 
     def perform(self, prompt: str, **kwargs) -> str:
         return self.do_perform(
