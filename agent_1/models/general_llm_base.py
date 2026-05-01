@@ -3,7 +3,6 @@ from logging import Logger
 from typing import Iterable, List
 
 import torch
-from dotenv import load_dotenv
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 
 
@@ -18,8 +17,13 @@ class GeneralLLMBase:
         self.model_id = model_id
         self.device = self.infer_device()
         self.logger = logger
-
-        load_dotenv()
+        self.mandatory_envvars: List[str] = [
+            "HF_HOME",
+            "HF_HUB_CACHE",
+            "HF_DATASETS_CACHE",
+            "TRANSFORMERS_CACHE",
+            "DIFFUSERS_CACHE",
+        ]
 
         envvar_issues = self.verify_mandatory_envvars()
 
@@ -28,9 +32,6 @@ class GeneralLLMBase:
             message = "Previous errors happened. See above messages"
             self.logger.error(message)
             raise SystemExit(message)
-
-        self.tokenizer = AutoTokenizer.from_pretrained(self.model_id)
-        self.model = AutoModelForSeq2SeqLM.from_pretrained(self.model_id)
 
     def infer_device(self) -> str:
         if torch.backends.mps.is_available():
@@ -45,7 +46,7 @@ class GeneralLLMBase:
                 message=f"No value for mandatory environment variable [{mandatory_envvar}] found",
                 success=False,
             )
-            for mandatory_envvar in ["HF_HOME"]
+            for mandatory_envvar in self.mandatory_envvars
             if not mandatory_envvar
         ]
 
