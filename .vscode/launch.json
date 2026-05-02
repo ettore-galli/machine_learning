@@ -28,7 +28,29 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "cwd": "${fileDirname}", 
+            "cwd": "${fileDirname}",
+            "env": {
+                "PYTHONPATH": "${fileDirname}"
+            }
+        },
+        {
+            "name": "HF RUN AGENT 1",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/agent_1/run.py",
+            "console": "integratedTerminal",
+            "cwd": "${fileDirname}",
+            "env": {
+                "PYTHONPATH": "${fileDirname}"
+            }
+        },
+        {
+            "name": "HF RUN TRAINING 1",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/agent_1/run_training.py",
+            "console": "integratedTerminal",
+            "cwd": "${fileDirname}",
             "env": {
                 "PYTHONPATH": "${fileDirname}"
             }
