@@ -1,6 +1,5 @@
 import logging
 
-
 from datasets import load_dataset
 from transformers import AutoTokenizer
 
@@ -26,9 +25,7 @@ def demo():
 
     tokenized_datasets = raw_datasets.map(tokenize_function, batched=True)
 
-    tokenized_ids = tokenizer.convert_ids_to_tokens(
-        tokenized_datasets["train"][1]["input_ids"]
-    )
+    _ = tokenizer.convert_ids_to_tokens(tokenized_datasets["train"][1]["input_ids"])
 
     print(".")
 
