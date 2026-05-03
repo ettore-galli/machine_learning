@@ -31,7 +31,7 @@ class ClassifierNLILLM(GeneralLLMBase):
             inputs = {k: v.to("cuda") for k, v in inputs.items()}
 
         with torch.no_grad():
-            outputs = model(inputs)
+            outputs = model(inputs, **kwargs)
             probs = outputs.logits.softmax(dim=1)
 
         return {
