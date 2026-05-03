@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 
 def demo():
-    gen_llm = GeneralLLM(model_id="google/flan-t5-large", logger=logger)
+    gen_llm = GeneralLLM(model_id="google/flan-t5-small", logger=logger)
     response = gen_llm.perform("""Answer the following question:
         How are emnedding used as input of transformers?
         Assume knowledge of what an embedding is

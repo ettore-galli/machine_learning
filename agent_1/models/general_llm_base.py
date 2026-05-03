@@ -1,9 +1,19 @@
+# pyright: reportUnknownMemberType=none
+# pyright: reportUnknownArgumentType=none
+# pyright: reportPrivateImportUsage=none
+
 from dataclasses import dataclass
 from logging import Logger
-from typing import Dict, Iterable, List
+from typing import Any, Dict, Iterable, List, Mapping, cast
 
 import torch
-from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
+from transformers import (
+    AutoModelForSeq2SeqLM,
+    AutoTokenizer,
+    BatchEncoding,
+    PreTrainedModel,
+    PreTrainedTokenizer,
+)
 
 
 @dataclass(frozen=True)
@@ -36,11 +46,13 @@ class GeneralLLMBase:
     def infer_device(self) -> str:
         if torch.backends.mps.is_available():
             return torch.backends.mps.get_name()
-        if torch.backends.cuda.is_available():
-            return torch.backends.cuda.get_name()
+        if torch.cuda.is_available():
+            return torch.cuda.get_device_name()
         return "cpu"
 
-    def prepare_input_for_device(self, device: str, tokenized_inputs: Dict) -> Dict:
+    def prepare_input_for_device(
+        self, device: str, tokenized_inputs: Dict[str, torch.Tensor]
+    ) -> Dict[str, torch.Tensor]:
         return (
             {k: v.to("cuda") for k, v in tokenized_inputs.items()}
             if device == "cuda"
@@ -70,22 +82,33 @@ class GeneralLLMBase:
     def prepare_propmpt(self, prompt: str) -> str:
         return prompt.strip() + "</s>"
 
-    def perform(self, prompt: str, **kwargs) -> str:
-        tokenizer = AutoTokenizer.from_pretrained(self.model_id)
-        model = AutoModelForSeq2SeqLM.from_pretrained(
-            self.model_id,
-            torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
-            device_map="auto" if self.device == "cuda" else None,
+    def perform(self, prompt: str, **kwargs: Mapping[str, Any]) -> str:
+        tokenizer: PreTrainedTokenizer = cast(
+            PreTrainedTokenizer,
+            AutoTokenizer.from_pretrained(self.model_id),
+        )
+        model: PreTrainedModel = cast(
+            PreTrainedModel,
+            AutoModelForSeq2SeqLM.from_pretrained(
+                self.model_id,
+                torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
+                device_map="auto" if self.device == "cuda" else None,
+            ),
         )
 
-        tokenized_inputs = tokenizer(self.prepare_propmpt(prompt), return_tensors="pt")
-
-        inputs = self.prepare_input_for_device(
-            tokenized_inputs=tokenized_inputs, device=self.device
+        encoded: BatchEncoding = tokenizer(
+            self.prepare_propmpt(prompt),
+            return_tensors="pt",
         )
 
-        generation_params = {**dict(num_beams=4), **kwargs}
+        inputs: torch.Tensor = encoded["input_ids"]
 
-        outputs = model.generate(**inputs, **generation_params)
+        generation_params: Mapping[str, Any] = {**dict(num_beams=4), **kwargs}
 
-        return tokenizer.decode(outputs[0], skip_special_tokens=True)
+        outputs: torch.Tensor = (
+            model.generate(  # pyright: ignore[reportCallIssue, reportUnknownMemberType, reportUnknownArgumentType, reportUnknownVariableType]
+                inputs, **generation_params
+            )
+        )  # pyright: ignore[reportUnknownMemberType]
+
+        return cast(str, tokenizer.decode(outputs[0], skip_special_tokens=True))

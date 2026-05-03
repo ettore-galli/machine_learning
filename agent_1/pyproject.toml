@@ -34,3 +34,15 @@ target-version = ["py311"]
 reportMissingImports = true
 reportUnusedVariable = true
 typeCheckingMode = "strict"
+
+exclude = [
+  "**/venv",
+  "**/.venv",
+  "**/site-packages",
+  "transformers",
+  "datasets",
+  "torch",
+  "**/node_modules",
+  "**/__pycache__",
+  "**/.*",
+]
