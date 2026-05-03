@@ -4,7 +4,7 @@
 
 from dataclasses import dataclass
 from logging import Logger
-from typing import Any, Dict, Iterable, List, Mapping, cast
+from typing import Any, Dict, Iterable, List, cast
 
 import torch
 from transformers import (
@@ -21,8 +21,10 @@ class Issue:
     message: str
     success: bool = False
 
+
 def _unsafe_generate(model: Any, *args: Any, **kwargs: Any) -> Any:
-    return model.generate(*args, **kwargs) 
+    return model.generate(*args, **kwargs)
+
 
 class GeneralLLMBase:
     def __init__(self, model_id: str, logger: Logger):
@@ -84,7 +86,7 @@ class GeneralLLMBase:
     def prepare_propmpt(self, prompt: str) -> str:
         return prompt.strip() + "</s>"
 
-    def perform(self, prompt: str, **kwargs: Mapping[str, Any]) -> str:
+    def perform(self, prompt: str, **kwargs: Any) -> str:
         tokenizer: PreTrainedTokenizer = cast(
             PreTrainedTokenizer,
             AutoTokenizer.from_pretrained(self.model_id),
@@ -105,7 +107,7 @@ class GeneralLLMBase:
 
         inputs: torch.Tensor = encoded["input_ids"]
 
-        generation_params: Mapping[str, Any] = {**dict(num_beams=4), **kwargs}
+        generation_params: Any = {**dict(num_beams=4), **kwargs}
 
         raw_outputs = _unsafe_generate(model, inputs, **generation_params)
 

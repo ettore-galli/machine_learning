@@ -1,8 +1,10 @@
+from typing import Any
+
 from models.general_llm_base import GeneralLLMBase
 
 
 class GeneralLLM(GeneralLLMBase):
-    def perform(self, prompt: str, **kwargs) -> str:
+    def perform(self, prompt: str, **kwargs: Any) -> str:
         return super().perform(
             prompt,
             **{
