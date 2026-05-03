@@ -21,6 +21,8 @@ class Issue:
     message: str
     success: bool = False
 
+def _unsafe_generate(model: Any, *args: Any, **kwargs: Any) -> Any:
+    return model.generate(*args, **kwargs) 
 
 class GeneralLLMBase:
     def __init__(self, model_id: str, logger: Logger):
@@ -105,10 +107,13 @@ class GeneralLLMBase:
 
         generation_params: Mapping[str, Any] = {**dict(num_beams=4), **kwargs}
 
-        outputs: torch.Tensor = (
-            model.generate(  # pyright: ignore[reportCallIssue, reportUnknownMemberType, reportUnknownArgumentType, reportUnknownVariableType]
-                inputs, **generation_params
-            )
-        )  # pyright: ignore[reportUnknownMemberType]
+        raw_outputs = _unsafe_generate(model, inputs, **generation_params)
 
-        return cast(str, tokenizer.decode(outputs[0], skip_special_tokens=True))
+        outputs: torch.Tensor = cast(torch.Tensor, raw_outputs)
+
+        decoded: str = cast(
+            str,
+            tokenizer.decode(outputs[0], skip_special_tokens=True),
+        )
+
+        return decoded
