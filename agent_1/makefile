@@ -11,7 +11,7 @@ setup-lint:
 lint:
 	uv run black .
 	uv run ruff check .
-	uv run black .
+	uv run pyright .
 
 ruff-fix:
 	uv run ruff check . --fix

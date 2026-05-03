@@ -21,14 +21,15 @@ class ClassifierNLILLM(GeneralLLMBase):
 
         hypothesis = "Given sentence requires to perform an arithmetic operation"
 
-        inputs = tokenizer.encode(
+        tokenized_inputs = tokenizer.encode(
             prompt,
             hypothesis,
             return_tensors="pt",
         )
 
-        if self.device == "cuda":
-            inputs = {k: v.to("cuda") for k, v in inputs.items()}
+        inputs = self.prepare_input_for_device(
+            tokenized_inputs=tokenized_inputs, device=self.device
+        )
 
         with torch.no_grad():
             outputs = model(inputs, **kwargs)

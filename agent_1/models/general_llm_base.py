@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from logging import Logger
-from typing import Iterable, List
+from typing import Dict, Iterable, List
 
 import torch
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
@@ -40,6 +40,13 @@ class GeneralLLMBase:
             return torch.backends.cuda.get_name()
         return "cpu"
 
+    def prepare_input_for_device(self, device: str, tokenized_inputs: Dict) -> Dict:
+        return (
+            {k: v.to("cuda") for k, v in tokenized_inputs.items()}
+            if device == "cuda"
+            else tokenized_inputs
+        )
+
     def verify_mandatory_envvars(self) -> List[Issue]:
         return [
             Issue(
@@ -71,10 +78,11 @@ class GeneralLLMBase:
             device_map="auto" if self.device == "cuda" else None,
         )
 
-        inputs = tokenizer(self.prepare_propmpt(prompt), return_tensors="pt")
+        tokenized_inputs = tokenizer(self.prepare_propmpt(prompt), return_tensors="pt")
 
-        if self.device == "cuda":
-            inputs = {k: v.to("cuda") for k, v in inputs.items()}
+        inputs = self.prepare_input_for_device(
+            tokenized_inputs=tokenized_inputs, device=self.device
+        )
 
         generation_params = {**dict(num_beams=4), **kwargs}
 
