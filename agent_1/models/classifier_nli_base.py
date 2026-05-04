@@ -27,7 +27,7 @@ class ClassifierNLIBase:
 
     def infer_device(self) -> str:
         if torch.backends.mps.is_available():
-            return torch.backends.mps.get_name()
+            return "mps"
         if torch.cuda.is_available():
             return torch.cuda.get_device_name()
         return "cpu"
@@ -62,6 +62,7 @@ class ClassifierNLIBase:
         result = do_classifier_perform(
             tokenizer=tokenizer,
             model=model,
+            device=self.device,
             text=prompt,
             text_pair=hypothesis,
             **kwargs,

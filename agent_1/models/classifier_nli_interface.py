@@ -16,6 +16,14 @@ from transformers import (
 from models.classifier_model_base import KeywordArgsType
 
 
+def prepare_input_tensor_for_device(
+    device: str, input_tensor: torch.Tensor
+) -> torch.Tensor:
+    return (
+        input_tensor.to(device=device).contiguous() if device != "cpu" else input_tensor
+    )
+
+
 def instantiate_classifier_objects(
     model_id: str, device: str
 ) -> Tuple[PreTrainedTokenizer, PreTrainedModel]:
@@ -26,10 +34,16 @@ def instantiate_classifier_objects(
         PreTrainedModel,
         AutoModelForSequenceClassification.from_pretrained(
             model_id,
-            dtype=torch.float16 if device == "cuda" else torch.float32,
+            dtype=torch.float16 if device != "cpu" else torch.float32,
             device_map="auto" if device == "cuda" else None,
         ),
     )
+
+    model.to(device)
+
+    if device == "mps":
+        for param in model.parameters():
+            param.data = param.data.to(device)
 
     return tokenizer, model
 
@@ -37,6 +51,7 @@ def instantiate_classifier_objects(
 def do_classifier_perform(
     tokenizer: PreTrainedTokenizer,
     model: PreTrainedModel,
+    device: str,
     text: str,
     text_pair: str,
     **kwargs: KeywordArgsType,
@@ -48,7 +63,9 @@ def do_classifier_perform(
         return_tensors="pt",
     )
 
-    inputs: torch.Tensor = encoded["input_ids"]
+    inputs: torch.Tensor = prepare_input_tensor_for_device(
+        device=device, input_tensor=encoded["input_ids"]
+    )
 
     with torch.no_grad():
         outputs = model(inputs, **kwargs)
