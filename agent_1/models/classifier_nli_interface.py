@@ -13,7 +13,15 @@ from transformers import (
     PreTrainedTokenizer,
 )
 
-from models.classifier_model_base import KeywordArgsType
+from models.classifier_model_base import KeywordArgsType, ModelClassifierNLIProtocol
+
+
+def infer_device() -> str:
+    if torch.backends.mps.is_available():
+        return "mps"
+    if torch.cuda.is_available():
+        return torch.cuda.get_device_name()
+    return "cpu"
 
 
 def prepare_input_tensor_for_device(
@@ -81,3 +89,26 @@ def do_classifier_perform(
     id2label: dict[int, str] = cast(dict[int, str], model.config.id2label)
 
     return {label: probs[0][result_id].item() for result_id, label in id2label.items()}
+
+
+def get_model_performer(
+    model_id: str, **kwargs: KeywordArgsType
+) -> ModelClassifierNLIProtocol:
+
+    device = infer_device()
+    tokenizer, model = instantiate_classifier_objects(model_id=model_id, device=device)
+
+    def model_performer(text: str, text_pair: str) -> Dict[str, float]:
+
+        result = do_classifier_perform(
+            tokenizer=tokenizer,
+            model=model,
+            device=device,
+            text=text,
+            text_pair=text_pair,
+            **kwargs,
+        )
+
+        return result
+
+    return model_performer

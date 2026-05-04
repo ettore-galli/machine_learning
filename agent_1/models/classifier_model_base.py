@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict
+from typing import Dict, Protocol
 
 KeywordArgsType = Dict[str, int | float | str]
 
@@ -8,6 +8,10 @@ KeywordArgsType = Dict[str, int | float | str]
 class Issue:
     message: str
     success: bool = False
+
+
+class ModelClassifierNLIProtocol(Protocol):
+    def __call__(self, text: str, text_pair: str) -> Dict[str, float]: ...
 
 
 MANDATORY_ENVVARS = [
