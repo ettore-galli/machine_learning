@@ -91,14 +91,14 @@ def do_classifier_perform(
     return {label: probs[0][result_id].item() for result_id, label in id2label.items()}
 
 
-def get_model_performer(
-    model_id: str, **kwargs: KeywordArgsType
-) -> ModelClassifierNLIProtocol:
+def get_model_performer(model_id: str) -> ModelClassifierNLIProtocol:
 
     device = infer_device()
     tokenizer, model = instantiate_classifier_objects(model_id=model_id, device=device)
 
-    def model_performer(text: str, text_pair: str) -> Dict[str, float]:
+    def model_performer(
+        text: str, text_pair: str, **kwargs: KeywordArgsType
+    ) -> Dict[str, float]:
 
         result = do_classifier_perform(
             tokenizer=tokenizer,

@@ -11,7 +11,9 @@ class Issue:
 
 
 class ModelClassifierNLIProtocol(Protocol):
-    def __call__(self, text: str, text_pair: str) -> Dict[str, float]: ...
+    def __call__(
+        self, text: str, text_pair: str, **kwargs: KeywordArgsType
+    ) -> Dict[str, float]: ...
 
 
 MANDATORY_ENVVARS = [
