@@ -3,7 +3,7 @@ from typing import Any, Dict, Iterable, List
 
 import torch
 
-from models.classifier_model_base import Issue
+from models.classifier_model_base import MANDATORY_ENVVARS, Issue
 from models.classifier_nli_interface import (
     do_classifier_perform,
     instantiate_classifier_objects,
@@ -15,13 +15,7 @@ class ClassifierNLIBase:
         self.model_id = model_id
         self.device = self.infer_device()
         self.logger = logger
-        self.mandatory_envvars: List[str] = [
-            "HF_HOME",
-            "HF_HUB_CACHE",
-            "HF_DATASETS_CACHE",
-            "TRANSFORMERS_CACHE",
-            "DIFFUSERS_CACHE",
-        ]
+        self.mandatory_envvars: List[str] = MANDATORY_ENVVARS
 
         envvar_issues = self.verify_mandatory_envvars()
 
