@@ -4,6 +4,8 @@ from typing import Dict, Protocol, Union
 KeywordArgsValueType = Union[int, float, str]
 KeywordArgsType = Dict[str, KeywordArgsValueType]
 
+ClassifierResultType = Dict[str, float]
+
 
 @dataclass(frozen=True)
 class Issue:

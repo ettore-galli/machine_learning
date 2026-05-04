@@ -2,7 +2,7 @@
 # pyright: reportUnknownArgumentType=none
 # pyright: reportPrivateImportUsage=none
 
-from typing import Dict, Tuple, cast
+from typing import Tuple, cast
 
 import torch
 from transformers import (
@@ -14,6 +14,7 @@ from transformers import (
 )
 
 from models.classifier_model_base import (
+    ClassifierResultType,
     KeywordArgsValueType,
     ModelClassifierNLIProtocol,
 )
@@ -73,7 +74,7 @@ def do_classifier_perform(
     text: str,
     text_pair: str,
     **kwargs: KeywordArgsValueType,
-) -> Dict[str, float]:
+) -> ClassifierResultType:
 
     encoded: BatchEncoding = tokenizer(
         text,
@@ -101,7 +102,7 @@ def get_model_performer(model_id: str) -> ModelClassifierNLIProtocol:
 
     def model_performer(
         text: str, text_pair: str, **kwargs: KeywordArgsValueType
-    ) -> Dict[str, float]:
+    ) -> ClassifierResultType:
 
         result = do_classifier_perform(
             tokenizer=tokenizer,

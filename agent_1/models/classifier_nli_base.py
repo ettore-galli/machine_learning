@@ -1,8 +1,9 @@
 from logging import Logger
-from typing import Dict, Iterable, List
+from typing import Iterable, List
 
 from models.classifier_model_base import (
     MANDATORY_ENVVARS,
+    ClassifierResultType,
     Issue,
     KeywordArgsType,
     KeywordArgsValueType,
@@ -51,7 +52,7 @@ class ClassifierNLIBase:
 
     def do_perform(
         self, prompt: str, hypothesis: str, **kwargs: KeywordArgsValueType
-    ) -> Dict[str, float]:
+    ) -> ClassifierResultType:
 
         return self.model_performer(
             text=prompt,
@@ -61,7 +62,7 @@ class ClassifierNLIBase:
 
     def perform(
         self, prompt: str, hypothesis: str, **kwargs: KeywordArgsValueType
-    ) -> Dict[str, float]:
+    ) -> ClassifierResultType:
         options: KeywordArgsType = {
             **dict(
                 max_new_tokens=512,
