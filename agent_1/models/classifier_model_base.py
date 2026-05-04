@@ -1,7 +1,8 @@
 from dataclasses import dataclass
-from typing import Dict, Protocol
+from typing import Dict, Protocol, Union
 
-KeywordArgsType = Dict[str, int | float | str]
+KeywordArgsValueType = Union[int, float, str]
+KeywordArgsType = Dict[str, KeywordArgsValueType]
 
 
 @dataclass(frozen=True)
@@ -12,7 +13,7 @@ class Issue:
 
 class ModelClassifierNLIProtocol(Protocol):
     def __call__(
-        self, text: str, text_pair: str, **kwargs: KeywordArgsType
+        self, text: str, text_pair: str, **kwargs: KeywordArgsValueType
     ) -> Dict[str, float]: ...
 
 

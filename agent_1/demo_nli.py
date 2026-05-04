@@ -15,8 +15,11 @@ def demo():
         "What a bad weather",
         "I am 53 years old",
     ]
+
+    hypothesis: str = "This sentence requires a calculation"
+
     for test_sentence in test_sentences:
-        response = gen_llm.perform(test_sentence)
+        response = gen_llm.perform(test_sentence, hypothesis)
 
         print("-" * 80)
         print(test_sentence)

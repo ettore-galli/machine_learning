@@ -1,7 +1,12 @@
 from logging import Logger
-from typing import Any, Dict, Iterable, List
+from typing import Dict, Iterable, List
 
-from models.classifier_model_base import MANDATORY_ENVVARS, Issue
+from models.classifier_model_base import (
+    MANDATORY_ENVVARS,
+    Issue,
+    KeywordArgsType,
+    KeywordArgsValueType,
+)
 from models.classifier_nli_interface import (
     get_model_performer,
 )
@@ -44,8 +49,9 @@ class ClassifierNLIBase:
     def is_failure_issues(self, issues: Iterable[Issue]) -> bool:
         return any(issue.success is False for issue in issues)
 
-    def do_perform(self, prompt: str, **kwargs: Any) -> Dict[str, float]:
-        hypothesis = "Given sentence requires to perform an arithmetic operation"
+    def do_perform(
+        self, prompt: str, hypothesis: str, **kwargs: KeywordArgsValueType
+    ) -> Dict[str, float]:
 
         return self.model_performer(
             text=prompt,
@@ -53,19 +59,23 @@ class ClassifierNLIBase:
             **kwargs,
         )
 
-    def perform(self, prompt: str, **kwargs: Any) -> Dict[str, float]:
+    def perform(
+        self, prompt: str, hypothesis: str, **kwargs: KeywordArgsValueType
+    ) -> Dict[str, float]:
+        options: KeywordArgsType = {
+            **dict(
+                max_new_tokens=512,
+                repetition_penalty=1.5,
+                do_sample=True,
+                top_k=50,
+                length_penalty=1.0,
+                no_repeat_ngram_size=3,
+                truncation_strategy="only_first",
+            ),
+            **kwargs,
+        }
         return self.do_perform(
             prompt,
-            **{
-                **dict(
-                    max_new_tokens=512,
-                    repetition_penalty=1.5,
-                    do_sample=True,
-                    top_k=50,
-                    length_penalty=1.0,
-                    no_repeat_ngram_size=3,
-                    truncation_strategy="only_first",
-                ),
-                **kwargs,
-            },
+            hypothesis,
+            **options,
         )

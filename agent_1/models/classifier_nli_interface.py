@@ -13,7 +13,10 @@ from transformers import (
     PreTrainedTokenizer,
 )
 
-from models.classifier_model_base import KeywordArgsType, ModelClassifierNLIProtocol
+from models.classifier_model_base import (
+    KeywordArgsValueType,
+    ModelClassifierNLIProtocol,
+)
 
 
 def infer_device() -> str:
@@ -69,7 +72,7 @@ def do_classifier_perform(
     device: str,
     text: str,
     text_pair: str,
-    **kwargs: KeywordArgsType,
+    **kwargs: KeywordArgsValueType,
 ) -> Dict[str, float]:
 
     encoded: BatchEncoding = tokenizer(
@@ -97,7 +100,7 @@ def get_model_performer(model_id: str) -> ModelClassifierNLIProtocol:
     tokenizer, model = instantiate_classifier_objects(model_id=model_id, device=device)
 
     def model_performer(
-        text: str, text_pair: str, **kwargs: KeywordArgsType
+        text: str, text_pair: str, **kwargs: KeywordArgsValueType
     ) -> Dict[str, float]:
 
         result = do_classifier_perform(
