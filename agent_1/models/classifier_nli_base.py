@@ -65,12 +65,7 @@ class ClassifierNLIBase:
     ) -> ClassifierResultType:
         options: KeywordArgsType = {
             **dict(
-                max_new_tokens=512,
-                repetition_penalty=1.5,
-                do_sample=True,
-                top_k=50,
-                length_penalty=1.0,
-                no_repeat_ngram_size=3,
+                max_length=512,
                 truncation_strategy="only_first",
             ),
             **kwargs,
