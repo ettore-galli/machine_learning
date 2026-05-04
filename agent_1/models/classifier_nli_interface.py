@@ -24,13 +24,20 @@ def prepare_input_tensor_for_device(
     )
 
 
+def move_to_device(model: PreTrainedModel, device: str) -> PreTrainedModel:
+    model.to(device)  # pyright: ignore[reportArgumentType]
+    return model
+
+
 def instantiate_classifier_objects(
     model_id: str, device: str
 ) -> Tuple[PreTrainedTokenizer, PreTrainedModel]:
 
+    tokenizer: PreTrainedTokenizer
     tokenizer = cast(PreTrainedTokenizer, AutoTokenizer.from_pretrained(model_id))
 
-    model: PreTrainedModel = cast(
+    model: PreTrainedModel
+    model = cast(
         PreTrainedModel,
         AutoModelForSequenceClassification.from_pretrained(
             model_id,
@@ -39,7 +46,7 @@ def instantiate_classifier_objects(
         ),
     )
 
-    model.to(device)
+    model = move_to_device(model, device)
 
     if device == "mps":
         for param in model.parameters():
