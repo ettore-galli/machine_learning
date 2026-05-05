@@ -44,6 +44,17 @@
                 "PYTHONPATH": "${fileDirname}"
             }
         },
+         {
+            "name": "HF demo_nli WRONG",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/agent_1/demo_nli.py",
+            "console": "integratedTerminal",
+            "cwd": "${fileDirname}",
+            "env": {
+                "PYTHONPATH": "${fileDirname}"
+            }
+        },
         {
             "name": "HF RUN TRAINING 1",
             "type": "debugpy",
