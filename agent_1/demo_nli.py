@@ -1,30 +1,65 @@
 import logging
-from typing import List
+from typing import List, Tuple
 
+from models.classifier_model_base import ClassifierResultType
 from models.classifier_nli import ClassifierNLILLM
 
 logger = logging.getLogger(__name__)
+
+
+def retrieve_response_ranking(
+    response: ClassifierResultType,
+) -> List[Tuple[str, float]]:
+    ranking = sorted(
+        [(key, round(value, 2)) for key, value in response.items()],
+        key=lambda item: item[1],
+        reverse=True,
+    )
+    return ranking
+
+
+def format_case(hypotesis: str, response: ClassifierResultType):
+    ranking = retrieve_response_ranking(response=response)
+    length = 40
+    return f"{hypotesis[:length].ljust(length+1)}: {ranking[0][0].upper()} ({100*ranking[0][1]} % )"
 
 
 def demo():
     gen_llm = ClassifierNLILLM(logger=logger)
 
     test_sentences: List[str] = [
-        """Add 75 to 4""",
-        "subtract 45 from 97",
-        "What a bad weather",
-        "I am 53 years old",
+        ("The quick brown fox jumps over the lazy dog"),
+        ("""
+            When I was younger, so much younger than today,
+            I never needed anybody's help in any way,
+            But now these days are gone and I'm not so self assured,
+            Now I find I've changed my mind, I've opened up the doors.
+
+            Help me if you can, I'm feeling down,
+            And I do appreciate you being 'round,
+            Help me get my feet back on the ground,
+            Won't you please, please help me?
+            """),
+        ("""
+            This is Titanic speaking just hit an Iceberg the ship is sinking we need immediate assistance
+            """),
     ]
 
-    hypothesis: str = "This sentence requires a calculation"
+    hypotheses: List[str] = [
+        "This text is a request for help",
+        "This is a real request for help",
+        "This is a metaphoric request for help",
+        "This is a song or poem",
+        "This is a haiku",
+    ]
 
     for test_sentence in test_sentences:
-        response = gen_llm.perform(test_sentence, hypothesis)
-
         print("-" * 80)
         print(test_sentence)
-        print(response)
-        print("-" * 80)
+        for hypotesis in hypotheses:
+
+            response = gen_llm.perform(test_sentence, hypotesis)
+            print(format_case(hypotesis=hypotesis, response=response))
 
 
 if __name__ in ["__main__"]:
