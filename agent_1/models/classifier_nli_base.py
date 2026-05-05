@@ -1,3 +1,4 @@
+import os
 from logging import Logger
 from typing import Iterable, List
 
@@ -25,7 +26,6 @@ class ClassifierNLIBase:
 
         if self.is_failure_issues(issues=envvar_issues):
             message = "Previous errors happened. See above messages"
-            self.logger.error(message)
             raise SystemExit(message)
 
         self.model_performer = get_model_performer(model_id=model_id)
@@ -37,7 +37,7 @@ class ClassifierNLIBase:
                 success=False,
             )
             for mandatory_envvar in self.mandatory_envvars
-            if not mandatory_envvar
+            if not os.getenv(mandatory_envvar)
         ]
 
     def log_issues(self, issues: Iterable[Issue]) -> None:
