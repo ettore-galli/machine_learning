@@ -1,14 +1,14 @@
-import os
 from logging import Logger
 from typing import Iterable, List
 
 from models.classifier_model_base import (
-    MANDATORY_ENVVARS,
+    KNOWN_MANDATORY_ENVVARS,
     ClassifierResultType,
     Issue,
     KeywordArgsType,
     KeywordArgsValueType,
 )
+from models.classifier_model_tools import verify_known_mandatory_envvars
 from models.classifier_nli_interface import (
     get_model_performer,
 )
@@ -18,9 +18,9 @@ class ClassifierNLIBase:
     def __init__(self, model_id: str, logger: Logger):
         self.model_id = model_id
         self.logger = logger
-        self.mandatory_envvars: List[str] = MANDATORY_ENVVARS
+        self.mandatory_envvars: List[str] = KNOWN_MANDATORY_ENVVARS
 
-        envvar_issues = self.verify_mandatory_envvars()
+        envvar_issues: List[Issue] = verify_known_mandatory_envvars()
 
         self.log_issues(issues=envvar_issues)
 
@@ -29,16 +29,6 @@ class ClassifierNLIBase:
             raise SystemExit(message)
 
         self.model_performer = get_model_performer(model_id=model_id)
-
-    def verify_mandatory_envvars(self) -> List[Issue]:
-        return [
-            Issue(
-                message=f"No value for mandatory environment variable [{mandatory_envvar}] found",
-                success=False,
-            )
-            for mandatory_envvar in self.mandatory_envvars
-            if not os.getenv(mandatory_envvar)
-        ]
 
     def log_issues(self, issues: Iterable[Issue]) -> None:
         for issue in issues:

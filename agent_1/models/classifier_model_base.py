@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, Protocol, Union
+from typing import Dict, List, Protocol, Union
 
 KeywordArgsValueType = Union[int, float, str]
 KeywordArgsType = Dict[str, KeywordArgsValueType]
@@ -19,7 +19,7 @@ class ModelClassifierNLIProtocol(Protocol):
     ) -> Dict[str, float]: ...
 
 
-MANDATORY_ENVVARS = [
+KNOWN_MANDATORY_ENVVARS: List[str] = [
     "HF_HOME",
     "HF_HUB_CACHE",
     "HF_DATASETS_CACHE",
