@@ -1,21 +1,11 @@
 import logging
-from typing import List, Tuple
+from typing import List
 
 from models.classifier_model_base import ClassifierResultType
+from models.classifier_model_tools import retrieve_response_ranking
 from models.classifier_nli import ClassifierNLILLM
 
 logger = logging.getLogger(__name__)
-
-
-def retrieve_response_ranking(
-    response: ClassifierResultType,
-) -> List[Tuple[str, float]]:
-    ranking = sorted(
-        [(key, round(value, 2)) for key, value in response.items()],
-        key=lambda item: item[1],
-        reverse=True,
-    )
-    return ranking
 
 
 def format_case(hypotesis: str, response: ClassifierResultType):
