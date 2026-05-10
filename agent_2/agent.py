@@ -41,8 +41,13 @@ def call_llm(messages: List[dict]) -> dict:
 # 3) Tool (calculator)
 # ------------------------------------------------------------
 @tool
-def calculator(expression: str) -> str:
+def calculator_tool(expression: str) -> str:
     """Valuta un'espressione matematica semplice."""
+    return calculator(expression=expression)
+
+
+def calculator(expression: str) -> str:
+    print("***** USO lA CALCOLATRICE *****")
     try:
         result = eval(expression, {"__builtins__": {}})
         return str(result)
@@ -63,14 +68,21 @@ def llm_node(state: AgentState):
 # ------------------------------------------------------------
 def tool_node(state: AgentState):
     last = state["messages"][-1]["content"]
-
+    print("***** USO IL TOOL NODE *****")
     # estrai input tool (didattico)
     if "calculator(" in last:
         expr = last.split("calculator(")[1].split(")")[0]
-        result = calculator(expr)
+        try:
+            result = calculator(expr)
+        except:
+            result = 0
         return {"messages": state["messages"] + [{"role": "tool", "content": result}]}
 
     return state
+
+
+def get_next_tool(state: AgentState) -> str:
+    return "tool" if "calculator(" in state["messages"][-1]["content"] else END
 
 
 # ------------------------------------------------------------
@@ -85,10 +97,12 @@ graph.set_entry_point("llm")
 
 graph.add_conditional_edges(
     "llm",
-    lambda state: "tool" if "calculator(" in state["messages"][-1]["content"] else END,
+    get_next_tool,
     {"tool": "tool", END: END},
 )
 
 graph.add_edge("tool", "llm")
 
 agent_executor = graph.compile()
+
+# Genera una chiamata alla funzione calculator() che calcola (23 + 5) * 2. Non aggiungere testo.
