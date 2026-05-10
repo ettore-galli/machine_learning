@@ -34,10 +34,21 @@
             }
         },
         {
-            "name": "HF RUN AGENT 1",
+            "name": "RUN AG.1",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/agent_1/run.py",
+            "console": "integratedTerminal",
+            "cwd": "${fileDirname}",
+            "env": {
+                "PYTHONPATH": "${fileDirname}"
+            }
+        },
+        {
+            "name": "RUN AG.2",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/agent_2/run.py",
             "console": "integratedTerminal",
             "cwd": "${fileDirname}",
             "env": {

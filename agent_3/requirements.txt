@@ -1,0 +1,10 @@
+langchain>=0.3.0
+langchain-community>=0.3.0
+langgraph>=0.2.59
+
+transformers>=4.40.0
+huggingface-hub>=0.22.0
+
+llama-cpp-python>=0.2.90
+
+python-dotenv>=1.0.1
