@@ -3,14 +3,14 @@ import os
 from llama_cpp import Llama
 from langchain_core.tools import tool
 from langgraph.graph import StateGraph, END
-from typing import TypedDict, List
+from typing import TypedDict, List, Dict, Any
 
 
 # ------------------------------------------------------------
 # 1) Stato dell’agente
 # ------------------------------------------------------------
 class AgentState(TypedDict):
-    messages: List[dict]
+    messages: List[Dict[str, Any]]
 
 
 # ------------------------------------------------------------
@@ -25,15 +25,38 @@ llm = Llama(
 
 
 def call_llm(messages: List[dict]) -> dict:
-    """Invoca il modello locale in stile Chat."""
+    """Invoca il modello con il prompt utente con istruzioni."""
     prompt = ""
     for m in messages:
-        role = m["role"]
-        content = m["content"]
-        prompt += f"{role.upper()}: {content}\n"
+        prompt += f"{m['role'].upper()}: {m['content']}\n"
+
+    prompt += """
+ISTRUZIONI:
+- Verifica se il prompt è un'operazione aritmetica. Se è un'operazione aritmetica allora usa un tool come spiegato sotto.
+- Se devi usare un tool, rispondi SOLO nel formato:
+  <tool name="calculator">ESPRESSIONE</tool>
+- Se devi rispondere all’utente, usa:
+  <assistant>TESTO</assistant>
+"""
 
     out = llm(prompt)
-    text = out["choices"][0]["text"]
+    text = out["choices"][0]["text"].strip()
+    return {"role": "assistant", "content": text}
+
+
+def check_user_request_via_llm(messages: List[dict]) -> dict:
+    """Invoca il modello con icercando di capire la richiesta utente"""
+
+    all_user_input = ", ".join(message["content"] for message in messages if message["role"]=="user")
+
+    prompt = (
+        f"given the following prompt: [{all_user_input}]: "
+        f"if it is a calculation, respond with '[CALC: {all_user_input}]' "
+        f"otherwise respond with '[OTHER: {all_user_input}])' "
+    )
+
+    out = llm(prompt)
+    text = out["choices"][0]["text"].strip()
     return {"role": "assistant", "content": text}
 
 
@@ -47,7 +70,6 @@ def calculator_tool(expression: str) -> str:
 
 
 def calculator(expression: str) -> str:
-    print("***** USO lA CALCOLATRICE *****")
     try:
         result = eval(expression, {"__builtins__": {}})
         return str(result)
@@ -58,8 +80,8 @@ def calculator(expression: str) -> str:
 # ------------------------------------------------------------
 # 4) Nodo LLM
 # ------------------------------------------------------------
-def llm_node(state: AgentState):
-    msg = call_llm(state["messages"])
+def check_user_request_via_llm_node(state: AgentState):
+    msg = check_user_request_via_llm(state["messages"])
     return {"messages": state["messages"] + [msg]}
 
 
@@ -68,15 +90,19 @@ def llm_node(state: AgentState):
 # ------------------------------------------------------------
 def tool_node(state: AgentState):
     last = state["messages"][-1]["content"]
-    print("***** USO IL TOOL NODE *****")
-    # estrai input tool (didattico)
-    if "calculator(" in last:
-        expr = last.split("calculator(")[1].split(")")[0]
-        try:
+
+    # estrai tool call strutturata
+    if "<tool" in last:
+        name = last.split('name="')[1].split('"')[0]
+        expr = last.split(">")[1].split("<")[0]
+
+        if name == "calculator":
             result = calculator(expr)
-        except:
-            result = 0
-        return {"messages": state["messages"] + [{"role": "tool", "content": result}]}
+
+            return {
+                "messages": state["messages"]
+                + [{"role": "tool", "content": result, "tool_name": name}]
+            }
 
     return state
 
@@ -85,20 +111,32 @@ def get_next_tool(state: AgentState) -> str:
     return "tool" if "calculator(" in state["messages"][-1]["content"] else END
 
 
+def route(state: AgentState):
+    last = state["messages"][-1]["content"]
+
+    if last.startswith("<tool"):
+        return "tool"
+
+    return END
+
+
 # ------------------------------------------------------------
 # 6) Grafo dell’agente
 # ------------------------------------------------------------
 graph = StateGraph(AgentState)
 
-graph.add_node("llm", llm_node)
+graph.add_node("llm", check_user_request_via_llm_node)
 graph.add_node("tool", tool_node)
 
 graph.set_entry_point("llm")
 
 graph.add_conditional_edges(
     "llm",
-    get_next_tool,
-    {"tool": "tool", END: END},
+    route,
+    {
+        "tool": "tool",
+        END: END,
+    },
 )
 
 graph.add_edge("tool", "llm")
