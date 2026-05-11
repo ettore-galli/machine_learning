@@ -56,6 +56,17 @@
             }
         },
          {
+            "name": "RUN AG.3",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/agent_3/run.py",
+            "console": "integratedTerminal",
+            "cwd": "${fileDirname}",
+            "env": {
+                "PYTHONPATH": "${fileDirname}"
+            }
+        },
+         {
             "name": "HF demo_nli WRONG",
             "type": "debugpy",
             "request": "launch",
