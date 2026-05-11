@@ -7,6 +7,8 @@ setup-lint:
 	uv tool install pyright
 	uv tool install black
 
+test:
+	pytest tests/unit/
 
 lint:
 	uv run black .

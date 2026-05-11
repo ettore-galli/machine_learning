@@ -3,14 +3,10 @@ import os
 from llama_cpp import Llama
 from langchain_core.tools import tool
 from langgraph.graph import StateGraph, END
-from typing import TypedDict, List, Dict, Any
+from typing import List
 
-
-# ------------------------------------------------------------
-# 1) Stato dell’agente
-# ------------------------------------------------------------
-class AgentState(TypedDict):
-    messages: List[Dict[str, Any]]
+from agent.utils import calculator
+from agent_3.agent.base import AgentState
 
 
 # ------------------------------------------------------------
@@ -47,7 +43,9 @@ ISTRUZIONI:
 def check_user_request_via_llm(messages: List[dict]) -> dict:
     """Invoca il modello con icercando di capire la richiesta utente"""
 
-    all_user_input = ", ".join(message["content"] for message in messages if message["role"]=="user")
+    all_user_input = ", ".join(
+        message["content"] for message in messages if message["role"] == "user"
+    )
 
     prompt = (
         f"given the following prompt: [{all_user_input}]: "
@@ -58,23 +56,6 @@ def check_user_request_via_llm(messages: List[dict]) -> dict:
     out = llm(prompt)
     text = out["choices"][0]["text"].strip()
     return {"role": "assistant", "content": text}
-
-
-# ------------------------------------------------------------
-# 3) Tool (calculator)
-# ------------------------------------------------------------
-@tool
-def calculator_tool(expression: str) -> str:
-    """Valuta un'espressione matematica semplice."""
-    return calculator(expression=expression)
-
-
-def calculator(expression: str) -> str:
-    try:
-        result = eval(expression, {"__builtins__": {}})
-        return str(result)
-    except Exception as e:
-        return f"Errore: {e}"
 
 
 # ------------------------------------------------------------
