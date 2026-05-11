@@ -8,7 +8,6 @@ from typing import List
 from agent.utils import calculator
 from agent.base import AgentState
 
-
 # ------------------------------------------------------------
 # 2) Modello locale GGUF
 # ------------------------------------------------------------
@@ -48,9 +47,33 @@ def check_user_request_via_llm(messages: List[dict]) -> dict:
     )
 
     prompt = (
-        f"given the following prompt: [{all_user_input}]: "
-        f"if it is a calculation, respond with '[CALC: {all_user_input}]' "
-        f"otherwise respond with '[OTHER: {all_user_input}])' "
+        f"""
+        Sei un classificatore deterministico. Devi produrre SOLO una delle due forme:
+
+        CALC <input>
+        OTHER <input>
+
+        Regole:
+        - Considera "espressione aritmetica valida" solo se l’input contiene esclusivamente cifre, spazi, + - * / e parentesi.
+        - Se l’input è una espressione aritmetica valida, rispondi esattamente:
+        CALC <input>
+
+        - Altrimenti rispondi esattamente:
+        OTHER <input>
+
+        Vincoli assoluti:
+        - Non aggiungere testo.
+        - Non spiegare.
+        - Non riformattare l’input.
+        - Non generare contenuti in stile web, Quora, FAQ, articoli, ricerche o suggerimenti.
+        - Non completare l’espressione.
+        - Non risolvere l’espressione.
+        - Non interpretare l’intento dell’utente.
+        - Non generare nulla oltre alle due forme consentite.
+
+        input: {all_user_input}
+
+        """
     )
 
     out = llm(prompt)
@@ -69,34 +92,34 @@ def check_user_request_via_llm_node(state: AgentState):
 # ------------------------------------------------------------
 # 5) Nodo tool
 # ------------------------------------------------------------
-def tool_node(state: AgentState):
+def calculator_node(state: AgentState):
     last = state["messages"][-1]["content"]
 
     # estrai tool call strutturata
-    if "<tool" in last:
-        name = last.split('name="')[1].split('"')[0]
-        expr = last.split(">")[1].split("<")[0]
+    # if last.strip().startswith("CALC"):
+    name = "calculator"
+    expr = last.split("CALC")[1].split("\n")[0]
 
-        if name == "calculator":
-            result = calculator(expr)
+    if name == "calculator":
+        result = calculator(expr)
 
-            return {
-                "messages": state["messages"]
-                + [{"role": "tool", "content": result, "tool_name": name}]
-            }
+    return {
+        "messages": state["messages"]
+        + [{"role": "tool", "content": result, "tool_name": name}]
+    }
 
-    return state
+    # return state
 
 
-def get_next_tool(state: AgentState) -> str:
-    return "tool" if "calculator(" in state["messages"][-1]["content"] else END
+# def get_next_tool(state: AgentState) -> str:
+#     return "tool" if "calculator(" in state["messages"][-1]["content"] else END
 
 
 def route(state: AgentState):
     last = state["messages"][-1]["content"]
 
-    if last.startswith("<tool"):
-        return "tool"
+    if "CALC" in last:
+        return "calculator_tool"
 
     return END
 
@@ -106,21 +129,21 @@ def route(state: AgentState):
 # ------------------------------------------------------------
 graph = StateGraph(AgentState)
 
-graph.add_node("llm", check_user_request_via_llm_node)
-graph.add_node("tool", tool_node)
+graph.add_node("llm_check_request", check_user_request_via_llm_node)
+graph.add_node("calculator_tool", calculator_node)
 
-graph.set_entry_point("llm")
+graph.set_entry_point("llm_check_request")
 
 graph.add_conditional_edges(
-    "llm",
+    "llm_check_request",
     route,
     {
-        "tool": "tool",
+        "calculator_tool": "calculator_tool",
         END: END,
     },
 )
 
-graph.add_edge("tool", "llm")
+graph.add_edge("calculator_tool", "llm_check_request")
 
 agent_executor = graph.compile()
 
