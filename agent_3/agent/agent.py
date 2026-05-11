@@ -6,7 +6,7 @@ from langgraph.graph import StateGraph, END
 from typing import List
 
 from agent.utils import calculator
-from agent_3.agent.base import AgentState
+from agent.base import AgentState
 
 
 # ------------------------------------------------------------
