@@ -1,4 +1,4 @@
-from agent import agent_executor
+from agent.agent import agent_executor
 
 def main():
     print("Mini-Agent Locale (LangGraph + Llama.cpp)")
