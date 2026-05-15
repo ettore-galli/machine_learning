@@ -61,40 +61,20 @@ def check_user_request_via_llm(messages: List[dict]) -> dict:
     )
 
     system_prompt = f"""
-        Sei un classificatore deterministico. Devi produrre SOLO una delle due forme:
-
-        CALC <input>
-        OTHER <input>
-
-        Regole:
-
-        Analizza lo user prompt 
-
-        - Considera "espressione aritmetica valida" solo se l’input contiene esclusivamente cifre, spazi, + - * / e parentesi.
-        - Se l’input è una espressione aritmetica valida, rispondi esattamente:
-        CALC <input>
-
-        - Altrimenti rispondi esattamente:
-        OTHER <input>
-
-        Vincoli assoluti:
-        - Non aggiungere testo.
-        - Non spiegare.
-        - Non riformattare l’input.
-        - Non generare contenuti in stile web, Quora, FAQ, articoli, ricerche o suggerimenti.
-        - Non completare l’espressione.
-        - Non risolvere l’espressione.
-        - Non interpretare l’intento dell’utente.
-        - Non generare nulla oltre alle due forme consentite.
-
+       Sei un assistente addetto alla selezione dei tool 
+       Se l’utente inserisce un’espressione matematica esatta, rispondi solo con CALC 
+       Se l’utente inserisce un’espressione che moltoprobabilmente è un CALCOLO, rispondi solo con PROCESS 
+       Altrimenti con OTHER 
         """
 
     user_prompt = all_user_input
 
     out = chat(system_prompt=system_prompt, user_prompt=user_prompt)
 
-    text = out["choices"][0]["text"].strip()
-    return {"role": "assistant", "content": text}
+    # text = out["choices"][0]["text"].strip()
+    # return {"role": "assistant", "content": text}
+    
+    return out
 
 
 # ------------------------------------------------------------
