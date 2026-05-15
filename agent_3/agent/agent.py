@@ -7,16 +7,30 @@ from typing import List
 
 from agent.utils import calculator
 from agent.base import AgentState
+from agent.ollama_client import OllamaClient
 
 # ------------------------------------------------------------
 # 2) Modello locale GGUF
 # ------------------------------------------------------------
-llm = Llama(
-    model_path=os.getenv("MODEL_PATH"),
-    n_ctx=4096,
-    temperature=0.2,
-    max_tokens=512,
+# llm = Llama(
+#     LOCAL_MODEL_PATH=os.getenv("LOCAL_MODEL_PATH"),
+#     n_ctx=4096,
+#     temperature=0.2,
+#     max_tokens=512,
+# )
+ollama_client = OllamaClient(
+    model=os.getenv("LLAMA_SERVER_MODEL"),
+    url=os.getenv("LLAMA_SERVER_ENDPOINT"),
 )
+
+
+def chat(system_prompt: str, user_prompt: str) -> str:
+    return ollama_client.chat(
+        system_prompt=system_prompt,
+        user_prompt=user_prompt,
+        temperature=0.7,
+        max_tokens=1024,
+    )
 
 
 def call_llm(messages: List[dict]) -> dict:
@@ -34,7 +48,7 @@ ISTRUZIONI:
   <assistant>TESTO</assistant>
 """
 
-    out = llm(prompt)
+    out = chat(user_prompt=prompt)
     text = out["choices"][0]["text"].strip()
     return {"role": "assistant", "content": text}
 
@@ -46,14 +60,16 @@ def check_user_request_via_llm(messages: List[dict]) -> dict:
         message["content"] for message in messages if message["role"] == "user"
     )
 
-    prompt = (
-        f"""
+    system_prompt = f"""
         Sei un classificatore deterministico. Devi produrre SOLO una delle due forme:
 
         CALC <input>
         OTHER <input>
 
         Regole:
+
+        Analizza lo user prompt 
+
         - Considera "espressione aritmetica valida" solo se l’input contiene esclusivamente cifre, spazi, + - * / e parentesi.
         - Se l’input è una espressione aritmetica valida, rispondi esattamente:
         CALC <input>
@@ -71,12 +87,12 @@ def check_user_request_via_llm(messages: List[dict]) -> dict:
         - Non interpretare l’intento dell’utente.
         - Non generare nulla oltre alle due forme consentite.
 
-        input: {all_user_input}
-
         """
-    )
 
-    out = llm(prompt)
+    user_prompt = all_user_input
+
+    out = chat(system_prompt=system_prompt, user_prompt=user_prompt)
+
     text = out["choices"][0]["text"].strip()
     return {"role": "assistant", "content": text}
 
