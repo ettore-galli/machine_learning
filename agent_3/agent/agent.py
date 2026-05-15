@@ -20,7 +20,7 @@ from agent.ollama_client import OllamaClient
 # )
 ollama_client = OllamaClient(
     model=os.getenv("LLAMA_SERVER_MODEL"),
-    url=os.getenv("LLAMA_SERVER_ENDPOINT"),
+    url=os.getenv("LLAMA_SERVER_URL"),
 )
 
 

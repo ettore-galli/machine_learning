@@ -7,6 +7,7 @@ class OllamaClient:
         self.url = url
 
     def chat(self, system_prompt, user_prompt, temperature=None, max_tokens=None):
+
         messages = [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
@@ -23,8 +24,12 @@ class OllamaClient:
             payload["options"] = payload.get("options", {})
             payload["options"]["num_predict"] = max_tokens
 
-        r = requests.post(self.url, json=payload)
-        return r.json()["message"]["content"]
+        completions_api_endpoint: str = self.url + "/v1/chat/completions"
+
+        llama_response = requests.post(completions_api_endpoint, json=payload)
+        llama_response.raise_for_status()
+
+        return llama_response.json()["choices"][0]["message"]["content"]
 
 
 """
