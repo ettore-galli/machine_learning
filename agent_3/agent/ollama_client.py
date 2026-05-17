@@ -6,7 +6,7 @@ class OllamaClient:
         self.model = model
         self.url = url
 
-    def chat(self, system_prompt, user_prompt, temperature=None, max_tokens=None):
+    def chat(self, system_prompt, user_prompt, temperature=None, num_predict=None):
 
         messages = [
             {"role": "system", "content": system_prompt},
@@ -20,9 +20,9 @@ class OllamaClient:
             payload["options"] = payload.get("options", {})
             payload["options"]["temperature"] = temperature
 
-        if max_tokens is not None:
+        if num_predict is not None:
             payload["options"] = payload.get("options", {})
-            payload["options"]["num_predict"] = max_tokens
+            payload["options"]["num_predict"] = num_predict
 
         completions_api_endpoint: str = self.url + "/v1/chat/completions"
 
@@ -39,7 +39,6 @@ response = client.chat(
     system_prompt="You are a helpful assistant.",
     user_prompt="Spiegami la differenza tra runtime.",
     temperature=0.7,
-    max_tokens=512,
 )
 
 print(response)

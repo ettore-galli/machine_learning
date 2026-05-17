@@ -16,7 +16,6 @@ from agent.ollama_client import OllamaClient
 #     LOCAL_MODEL_PATH=os.getenv("LOCAL_MODEL_PATH"),
 #     n_ctx=4096,
 #     temperature=0.2,
-#     max_tokens=512,
 # )
 ollama_client = OllamaClient(
     model=os.getenv("LLAMA_SERVER_MODEL"),
@@ -28,8 +27,7 @@ def chat(system_prompt: str, user_prompt: str) -> str:
     return ollama_client.chat(
         system_prompt=system_prompt,
         user_prompt=user_prompt,
-        temperature=0.7,
-        max_tokens=1024,
+        temperature=0.1,
     )
 
 
@@ -48,7 +46,7 @@ ISTRUZIONI:
   <assistant>TESTO</assistant>
 """
 
-    out = chat(user_prompt=prompt)
+    out = ollama_client.chat(user_prompt=prompt)
     text = out["choices"][0]["text"].strip()
     return {"role": "assistant", "content": text}
 
@@ -61,19 +59,44 @@ def check_user_request_via_llm(messages: List[dict]) -> dict:
     )
 
     system_prompt = f"""
-       Sei un assistente addetto alla selezione dei tool 
-       Se l’utente inserisce un’espressione matematica esatta, rispondi solo con CALC 
-       Se l’utente inserisce un’espressione che moltoprobabilmente è un CALCOLO, rispondi solo con PROCESS 
-       Altrimenti con OTHER 
+L’unico output valido è una delle due parole:
+CALC
+OTHER
+
+Criterio:
+- Rispondi CALC se e solo se l’input contiene esclusivamente:
+  cifre (0-9), spazi, + - * / e parentesi ( )
+- In tutti gli altri casi rispondi OTHER.
+
+Regole rigide:
+- Non aggiungere testo.
+- Non aggiungere spiegazioni.
+- Non ripetere l’input.
+- Non risolvere l’espressione.
+- Non generare esempi, quiz, esercizi, articoli o contenuti scolastici.
+- Non generare più di una parola.
+- Non generare nulla prima o dopo la parola.
+
+Output ammessi:
+CALC
+OTHER
+
+
+
         """
 
     user_prompt = all_user_input
 
-    out = chat(system_prompt=system_prompt, user_prompt=user_prompt)
+    out = ollama_client.chat(
+        system_prompt=system_prompt,
+        user_prompt=user_prompt,
+        temperature=0.1,
+        num_predict=1,
+    )
 
     # text = out["choices"][0]["text"].strip()
     # return {"role": "assistant", "content": text}
-    
+
     return out
 
 
