@@ -32,9 +32,29 @@ uv add "langchain>=0.3.0"
 uv add "langchain-community>=0.3.0"
 uv add "langgraph>=0.2.59"
 uv add "llama-cpp-python>=0.2.90"
+uv add "llama-cpp-python[server]"
 uv add "python-dotenv>=1.0.1"
 
 uv add --dev ruff
 uv add --dev black
 uv add --dev pyright
+```
+
+## Llama cpp server
+
+Start:
+
+```shell
+./llama_cpp_server.sh
+```
+
+Chiamata:
+
+```shell
+curl http://localhost:9876/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+        "model": "local-model",
+        "messages": [{"role": "user", "content": "Rispondi unicamente si o no: 3+7 è un calcolo?"}]
+      }'
 ```
