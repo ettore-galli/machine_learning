@@ -90,9 +90,10 @@ OTHER
     out = ollama_client.chat(
         system_prompt=system_prompt,
         user_prompt=user_prompt,
-        temperature=0.1,
-        num_predict=1,
+        # temperature=0.1,
+        # num_predict=1,
     )
+    
 
     # text = out["choices"][0]["text"].strip()
     # return {"role": "assistant", "content": text}
