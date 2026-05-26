@@ -4,6 +4,8 @@ from llama_cpp import Llama
 from langchain_core.tools import tool
 from langgraph.graph import StateGraph, END
 from typing import List
+from openai import OpenAI
+from openai.types.chat.chat_completion import ChatCompletion
 
 from agent.utils import calculator
 from agent.base import AgentState
@@ -23,32 +25,30 @@ ollama_client = OllamaClient(
 )
 
 
+def extract_message_from_completion(completion: ChatCompletion) -> str:
+    return completion.choices[0].message.content
+
+
+def openai_chat(system_prompt: str, user_prompt: str) -> ChatCompletion:
+    client = OpenAI(
+        base_url=f'{os.getenv("LLAMA_CPP_SERVER_URL")}/v1', api_key="not-needed"
+    )
+
+    return client.chat.completions.create(
+        model=os.getenv("LLAMA_CPP_SERVER_MODEL"),
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+    )
+
+
 def chat(system_prompt: str, user_prompt: str) -> str:
     return ollama_client.chat(
         system_prompt=system_prompt,
         user_prompt=user_prompt,
         temperature=0.1,
     )
-
-
-def call_llm(messages: List[dict]) -> dict:
-    """Invoca il modello con il prompt utente con istruzioni."""
-    prompt = ""
-    for m in messages:
-        prompt += f"{m['role'].upper()}: {m['content']}\n"
-
-    prompt += """
-ISTRUZIONI:
-- Verifica se il prompt è un'operazione aritmetica. Se è un'operazione aritmetica allora usa un tool come spiegato sotto.
-- Se devi usare un tool, rispondi SOLO nel formato:
-  <tool name="calculator">ESPRESSIONE</tool>
-- Se devi rispondere all’utente, usa:
-  <assistant>TESTO</assistant>
-"""
-
-    out = ollama_client.chat(user_prompt=prompt)
-    text = out["choices"][0]["text"].strip()
-    return {"role": "assistant", "content": text}
 
 
 def check_user_request_via_llm(messages: List[dict]) -> dict:
@@ -87,13 +87,16 @@ OTHER
 
     user_prompt = all_user_input
 
-    out = ollama_client.chat(
+    out = openai_chat(
         system_prompt=system_prompt,
         user_prompt=user_prompt,
-        # temperature=0.1,
-        # num_predict=1,
     )
-    
+    # out = ollama_client.chat(
+    #     system_prompt=system_prompt,
+    #     user_prompt=user_prompt,
+    #     # temperature=0.1,
+    #     # num_predict=1,
+    # )
 
     # text = out["choices"][0]["text"].strip()
     # return {"role": "assistant", "content": text}
