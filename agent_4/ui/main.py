@@ -1,18 +1,18 @@
 from agent.agent_openai import agent_executor
+from agent.base import get_initial_agent_state
 
 
 def main():
     print("Mini-Agent Locale (LangGraph + Llama.cpp)")
     print("Scrivi 'exit' per uscire.\n")
 
-    state = {"messages": []}
-
     while True:
-        user = input("<prompt>: ")
-        if user == "exit":
+        user_prompt = input("<prompt>: ")
+
+        if user_prompt == "exit":
             break
 
-        state["messages"].append({"role": "user", "content": user})
+        state = get_initial_agent_state(initial_user_prompt=user_prompt)
         state = agent_executor.invoke(state)
 
         print("Agente:", state["messages"][-1]["content"], "\n")

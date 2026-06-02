@@ -1,19 +1,22 @@
-import os
 from typing import List
 from openai import OpenAI
 from langgraph.graph import StateGraph, END
-from agent.base import AgentState
+from agent.base import AgentSettings, AgentState
 from agent.utils import calculator
 
+DEFAULT_NO_RESPONSE: str = "Dati insufficienti per na risposta significativa"
 
-def openai_chat(system_prompt: str, user_prompt: str) -> str:
+
+def openai_chat(
+    agent_settings: AgentSettings, system_prompt: str, user_prompt: str
+) -> str:
     client = OpenAI(
-        base_url=f'{os.getenv("LLAMA_CPP_SERVER_URL")}/v1',
+        base_url=f"{agent_settings.llama_cpp_server_url}/v1",
         api_key="not-needed",
     )
 
     completion = client.chat.completions.create(
-        model=os.getenv("LLAMA_CPP_SERVER_MODEL"),
+        model=agent_settings.llama_cpp_server_model,
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
@@ -21,10 +24,12 @@ def openai_chat(system_prompt: str, user_prompt: str) -> str:
         temperature=0,
     )
 
-    return completion.choices[0].message.content
+    return completion.choices[0].message.content or DEFAULT_NO_RESPONSE
 
 
-def check_user_request_via_llm(messages: List[dict]) -> dict:
+def check_user_request_via_llm(
+    agent_settings: AgentSettings, messages: List[dict]
+) -> dict:
     user_text = ", ".join(m["content"] for m in messages if m["role"] == "user")
 
     system_prompt = (
@@ -33,14 +38,21 @@ def check_user_request_via_llm(messages: List[dict]) -> dict:
         "Altrimenti rispondi esattamente: OTHER"
     )
 
-    result = openai_chat(system_prompt, user_text)
+    result = openai_chat(
+        agent_settings=agent_settings,
+        system_prompt=system_prompt,
+        user_prompt=user_text,
+    )
 
     # Normalizziamo in formato LangGraph
     return {"role": "assistant", "content": result}
 
 
 def check_user_request_via_llm_node(state: AgentState):
-    msg = check_user_request_via_llm(state["messages"])
+    agent_settings = AgentSettings.load()
+    msg = check_user_request_via_llm(
+        agent_settings=agent_settings, messages=state["messages"]
+    )
     return {"messages": state["messages"] + [msg]}
 
 
