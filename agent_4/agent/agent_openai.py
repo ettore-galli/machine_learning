@@ -6,6 +6,13 @@ from agent.utils import calculator
 
 DEFAULT_NO_RESPONSE: str = "Dati insufficienti per na risposta significativa"
 
+agent_settings: AgentSettings = AgentSettings.load()
+
+client = OpenAI(
+    base_url=f"{agent_settings.llama_cpp_server_url}/v1",
+    api_key="not-needed",
+)
+
 
 def openai_chat(
     agent_settings: AgentSettings, system_prompt: str, user_prompt: str
