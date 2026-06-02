@@ -9,7 +9,7 @@ from openai.types.chat import (
 )
 from langgraph.graph import StateGraph, END
 from agent.base import AgentSettings, AgentState
-from agent.utils import calculator
+from agent.utils import calculator, meteo
 
 DEFAULT_NO_RESPONSE: str = "Dati insufficienti per una risposta significativa"
 
@@ -23,9 +23,23 @@ Esempi:
 - Input: "quanto fa 2+2?"
   Output: {"tool": "calculator", "args": {"expr": "2+2"}}
 
+Se l'utente chiede informazioni sul meteo, NON rispondere direttamente.
+Invece restituisci ESATTAMENTE un JSON del tipo:
+{"tool": "weather", "args": {"city": "<nome città>"}, "when": "<quando>"}}  
+
+Esempi:
+- Input: "Che tempo farà a Firenze domani?"
+  Output: {"tool": "meteo", "args": {"city":"Firenze", "when": "Domani"}}
+- Input: "Dammi il meteo di Torino"
+  Output: {"tool": "meteo", "args": {"city":"Firenze", "when": "Oggi"}}
+
 Se invece la richiesta NON richiede il tool, rispondi normalmente in italiano,
 con un testo libero (non JSON).
 """
+
+KNOWN_CALC_TOOLS = ["calculator", "calc", "calculus"]
+KNOWN_METEO_TOOLS = ["weather", "meteo", "tempo"]
+
 
 agent_settings: AgentSettings = AgentSettings.load()
 
@@ -95,7 +109,7 @@ def calculator_tool_node(state: AgentState) -> dict[str, Any]:
         final_msg = {"role": "assistant", "content": result_text}
         return {"messages": state["messages"] + [final_msg]}
 
-    if data.get("tool") != "calculator":
+    if data.get("tool") not in KNOWN_CALC_TOOLS:
         result_text = f"Errore: tool richiesto sconosciuto: {data.get('tool')}"
         final_msg = {"role": "assistant", "content": result_text}
         return {"messages": state["messages"] + [final_msg]}
@@ -104,6 +118,38 @@ def calculator_tool_node(state: AgentState) -> dict[str, Any]:
     expr = args.get("expr", "")
 
     result = calculator(expr)
+    final_msg = {
+        "role": "assistant",
+        "content": str(result),
+    }
+
+    # Qui, per la tua specifica, la risposta finale È la risposta del tool
+    return {"messages": state["messages"] + [final_msg]}
+
+
+def meteo_tool_node(state: AgentState) -> dict[str, Any]:
+    last = state["messages"][-1]
+    content = last.get("content", "")
+
+    try:
+        data = json.loads(content)
+    except json.JSONDecodeError:
+        # Il modello ha sbagliato formato: fallback
+        result_text = f"Errore: output non valido per il tool: {content}"
+        final_msg = {"role": "assistant", "content": result_text}
+        return {"messages": state["messages"] + [final_msg]}
+
+    if data.get("tool") not in KNOWN_METEO_TOOLS:
+        result_text = f"Errore: tool richiesto sconosciuto: {data.get('tool')}"
+        final_msg = {"role": "assistant", "content": result_text}
+        return {"messages": state["messages"] + [final_msg]}
+
+    args = data.get("args", {})
+    city = str(args.get("city", "")).lower()
+    when = str(args.get("when", "")).lower()
+
+    result = meteo(city, when)
+
     final_msg = {
         "role": "assistant",
         "content": str(result),
@@ -138,8 +184,11 @@ def route_from_llm(state: AgentState) -> str:
 
     tool_name = data.get("tool")
 
-    if tool_name == "calculator":
+    if tool_name.lower().strip() in KNOWN_CALC_TOOLS:
         return "calculator_tool"
+
+    if tool_name.lower().strip() in KNOWN_METEO_TOOLS:
+        return "meteo_tool"
 
     # Tool sconosciuto o assente → risposta diretta
     return "final"
@@ -149,6 +198,7 @@ graph = StateGraph(AgentState)
 
 graph.add_node("llm", llm_node)
 graph.add_node("calculator_tool", calculator_tool_node)
+graph.add_node("meteo_tool", meteo_tool_node)
 graph.add_node("final", final_answer_node)
 
 graph.set_entry_point("llm")
@@ -158,6 +208,7 @@ graph.add_conditional_edges(
     route_from_llm,
     {
         "calculator_tool": "calculator_tool",
+        "meteo_tool": "meteo_tool",
         "final": "final",
     },
 )
