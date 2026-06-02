@@ -11,19 +11,6 @@ from agent.utils import calculator
 from agent.base import AgentState
 from agent.ollama_client import OllamaClient
 
-# ------------------------------------------------------------
-# 2) Modello locale GGUF
-# ------------------------------------------------------------
-# llm = Llama(
-#     LOCAL_MODEL_PATH=os.getenv("LOCAL_MODEL_PATH"),
-#     n_ctx=4096,
-#     temperature=0.2,
-# )
-ollama_client = OllamaClient(
-    model=os.getenv("LLAMA_SERVER_MODEL"),
-    url=os.getenv("LLAMA_SERVER_URL"),
-)
-
 
 def extract_message_from_completion(completion: ChatCompletion) -> str:
     return completion.choices[0].message.content
@@ -40,14 +27,6 @@ def openai_chat(system_prompt: str, user_prompt: str) -> ChatCompletion:
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
         ],
-    )
-
-
-def chat(system_prompt: str, user_prompt: str) -> str:
-    return ollama_client.chat(
-        system_prompt=system_prompt,
-        user_prompt=user_prompt,
-        temperature=0.1,
     )
 
 
@@ -81,8 +60,6 @@ Output ammessi:
 CALC
 OTHER
 
-
-
         """
 
     user_prompt = all_user_input
@@ -91,15 +68,6 @@ OTHER
         system_prompt=system_prompt,
         user_prompt=user_prompt,
     )
-    # out = ollama_client.chat(
-    #     system_prompt=system_prompt,
-    #     user_prompt=user_prompt,
-    #     # temperature=0.1,
-    #     # num_predict=1,
-    # )
-
-    # text = out["choices"][0]["text"].strip()
-    # return {"role": "assistant", "content": text}
 
     return out
 
@@ -131,15 +99,9 @@ def calculator_node(state: AgentState):
         + [{"role": "tool", "content": result, "tool_name": name}]
     }
 
-    # return state
-
-
-# def get_next_tool(state: AgentState) -> str:
-#     return "tool" if "calculator(" in state["messages"][-1]["content"] else END
-
 
 def route(state: AgentState):
-    last = state["messages"][-1]["content"]
+    last = state["messages"][-1].choices[0].message.content
 
     if "CALC" in last:
         return "calculator_tool"
