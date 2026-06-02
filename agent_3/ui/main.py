@@ -1,4 +1,4 @@
-from agent.agent import agent_executor
+from agent.agent_openai import agent_executor
 
 
 def main():

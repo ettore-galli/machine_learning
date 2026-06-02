@@ -37,31 +37,7 @@ def check_user_request_via_llm(messages: List[dict]) -> dict:
         message["content"] for message in messages if message["role"] == "user"
     )
 
-    system_prompt = f"""
-L’unico output valido è una delle due parole:
-CALC
-OTHER
-
-Criterio:
-- Rispondi CALC se e solo se l’input contiene esclusivamente:
-  cifre (0-9), spazi, + - * / e parentesi ( )
-- In tutti gli altri casi rispondi OTHER.
-
-Regole rigide:
-- Non aggiungere testo.
-- Non aggiungere spiegazioni.
-- Non ripetere l’input.
-- Non risolvere l’espressione.
-- Non generare esempi, quiz, esercizi, articoli o contenuti scolastici.
-- Non generare più di una parola.
-- Non generare nulla prima o dopo la parola.
-
-Output ammessi:
-CALC
-OTHER
-
-        """
-
+    system_prompt = "Rispondi CALC + il prompt utente se l’input contiene esclusivamente cifre (0-9), spazi, + - * / e parentesi ( ) altrimenti rispondi OTHER"
     user_prompt = all_user_input
 
     out = openai_chat(
@@ -130,6 +106,6 @@ graph.add_conditional_edges(
 
 graph.add_edge("calculator_tool", "llm_check_request")
 
-agent_executor = graph.compile()
+agent_executor_legacy_dont_use_this = graph.compile()
 
 # Genera una chiamata alla funzione calculator() che calcola (23 + 5) * 2. Non aggiungere testo.
