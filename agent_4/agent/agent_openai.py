@@ -8,20 +8,15 @@ DEFAULT_NO_RESPONSE: str = "Dati insufficienti per na risposta significativa"
 
 agent_settings: AgentSettings = AgentSettings.load()
 
-client = OpenAI(
+client: OpenAI = OpenAI(
     base_url=f"{agent_settings.llama_cpp_server_url}/v1",
     api_key="not-needed",
 )
 
 
 def openai_chat(
-    agent_settings: AgentSettings, system_prompt: str, user_prompt: str
+    agent_settings: AgentSettings, client: OpenAI, system_prompt: str, user_prompt: str
 ) -> str:
-    client = OpenAI(
-        base_url=f"{agent_settings.llama_cpp_server_url}/v1",
-        api_key="not-needed",
-    )
-
     completion = client.chat.completions.create(
         model=agent_settings.llama_cpp_server_model,
         messages=[
@@ -35,7 +30,7 @@ def openai_chat(
 
 
 def check_user_request_via_llm(
-    agent_settings: AgentSettings, messages: List[dict]
+    agent_settings: AgentSettings, client: OpenAI, messages: List[dict]
 ) -> dict:
     user_text = ", ".join(m["content"] for m in messages if m["role"] == "user")
 
@@ -47,6 +42,7 @@ def check_user_request_via_llm(
 
     result = openai_chat(
         agent_settings=agent_settings,
+        client=client,
         system_prompt=system_prompt,
         user_prompt=user_text,
     )
@@ -56,9 +52,9 @@ def check_user_request_via_llm(
 
 
 def check_user_request_via_llm_node(state: AgentState):
-    agent_settings = AgentSettings.load()
+
     msg = check_user_request_via_llm(
-        agent_settings=agent_settings, messages=state["messages"]
+        agent_settings=agent_settings, client=client, messages=state["messages"]
     )
     return {"messages": state["messages"] + [msg]}
 
@@ -80,10 +76,7 @@ def final_answer_node(state: AgentState):
 
     result = f"Risposta finale: {last}"
 
-    return {
-        "messages": state["messages"]
-        + [{"role": "tool", "tool_name": "calculator", "content": result}]
-    }
+    return {"messages": state["messages"] + [{"role": "assistant", "content": result}]}
 
 
 def route(state: AgentState):
@@ -95,8 +88,12 @@ def route(state: AgentState):
 
     # Altrimenti routing normale
     content = last_msg["content"]
+
     if content.startswith("CALC"):
         return "calculator_tool"
+
+    if content == "OTHER":
+        return END
 
     return END
 
