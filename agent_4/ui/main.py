@@ -1,4 +1,4 @@
-from agent.agent_openai import agent_executor
+from agent.agent_openai_tooling import agent_executor
 from agent.base import get_initial_agent_state
 
 
