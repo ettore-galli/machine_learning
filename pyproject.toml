@@ -1,3 +1,9 @@
+[project]
+description = "Various AI"
+name = "ai"
+version = "0.0.0"
+requires-python = ">=3.11"
+
 [tool.mypy]
 disallow_untyped_defs = true # Functions need to be annotated
 exclude = [
@@ -12,4 +18,12 @@ warn_unused_ignores = true
 [tool.ruff]
 extend-exclude = [
     "*.ipynb",
+]
+
+[dependency-groups]
+dev = [
+  "black>=26.3.1",
+  "pyright>=1.1.410",
+  "pytest>=9.0.3",
+  "ruff>=0.15.12",
 ]

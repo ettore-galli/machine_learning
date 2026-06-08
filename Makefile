@@ -1,6 +1,7 @@
 packages=fastai_work
  
+
 lint:
-	black $(packages)
-	ruff check $(packages)
-	mypy $(packages)
+	uv run black $(packages)
+	uv run ruff check $(packages)
+	uv run pyright $(packages)
