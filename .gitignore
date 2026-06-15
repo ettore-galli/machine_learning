@@ -160,4 +160,6 @@ cython_debug/
 #.idea/
 
 # WEIGHTS
-/models
+models/
+
+build-ai-agents-and-chatbots-with-langgraph/
