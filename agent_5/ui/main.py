@@ -1,9 +1,12 @@
-from agent.agent_openai import model
+from ai_agent.base import build_agent_input
+from ai_agent.agent_openai import initialize_agent
 
 
 def main():
     print("Mini-Agent Locale (LangGraph + Llama.cpp)")
     print("Scrivi 'exit' per uscire.\n")
+
+    agent = initialize_agent()
 
     while True:
         user_prompt = input("<prompt>: ")
@@ -11,9 +14,9 @@ def main():
         if user_prompt == "exit":
             break
 
-        response = model.invoke(user_prompt)
+        response = agent.invoke(build_agent_input(initial_user_prompt=user_prompt))
 
-        print(response.content)
+        print(response)
 
 
 if __name__ == "__main__":

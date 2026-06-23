@@ -1,6 +1,11 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Dict, List, TypedDict
+from langchain.messages import HumanMessage
+
+from langchain.agents.middleware.types import (
+    InputAgentState,
+)
 
 AgentStateMessagesType = List[Dict[str, Any]]
 
@@ -30,3 +35,7 @@ class AgentState(TypedDict):
 
 def get_initial_agent_state(initial_user_prompt: str) -> AgentState:
     return AgentState(messages=[{"role": "user", "content": initial_user_prompt}])
+
+
+def build_agent_input(initial_user_prompt: str) -> InputAgentState:
+    return InputAgentState({"messages": [HumanMessage(content=initial_user_prompt)]})
