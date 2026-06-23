@@ -39,3 +39,7 @@ def get_initial_agent_state(initial_user_prompt: str) -> AgentState:
 
 def build_agent_input(initial_user_prompt: str) -> InputAgentState:
     return InputAgentState({"messages": [HumanMessage(content=initial_user_prompt)]})
+
+
+def extract_response_message(response: Dict) -> str:
+    return response["messages"][-1].content

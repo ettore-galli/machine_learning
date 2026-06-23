@@ -1,4 +1,4 @@
-from ai_agent.base import build_agent_input
+from ai_agent.base import build_agent_input, extract_response_message
 from ai_agent.agent_openai import initialize_agent
 
 
@@ -16,7 +16,7 @@ def main():
 
         response = agent.invoke(build_agent_input(initial_user_prompt=user_prompt))
 
-        print(response)
+        print(extract_response_message(response))
 
 
 if __name__ == "__main__":
