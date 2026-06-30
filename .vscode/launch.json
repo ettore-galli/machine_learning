@@ -77,6 +77,17 @@
                 "PYTHONPATH": "${fileDirname}"
             }
         },
+         {
+            "name": "RUN AG.5",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/agent_5/run.py",
+            "console": "integratedTerminal",
+            "cwd": "${fileDirname}",
+            "env": {
+                "PYTHONPATH": "${fileDirname}"
+            }
+        },
         {
             "name": "HF demo_nli WRONG",
             "type": "debugpy",

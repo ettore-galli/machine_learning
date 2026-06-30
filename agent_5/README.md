@@ -1,4 +1,8 @@
-# AGENT 2
+# AGENT 5
+
+## Corso LangChain
+
+<https://academy.langchain.com/courses/take/foundation-introduction-to-langchain-python>
 
 ## Download modello (una tantum)
 
