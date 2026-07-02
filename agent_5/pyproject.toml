@@ -3,8 +3,7 @@ dependencies = [
   "langchain",
   "langchain-openai",
   "langchain-community",
-  "llama-cpp-python==0.3.2",
-  "llama-cpp-python[server]",
+  "llama-cpp-python[server]>=0.3.7",
 ]
 description = "Agente 5"
 name = "agent-5"
@@ -18,4 +17,5 @@ dev = [
   "pyright>=1.1.410",
   "pytest>=9.0.3",
   "ruff>=0.15.12",
+  "ddgs==9.14.4"
 ]

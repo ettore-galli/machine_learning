@@ -17,3 +17,13 @@ lint:
 
 ruff-fix:
 	uv run ruff check . --fix
+
+sync:
+	uv sync --active
+
+install-python:
+	uv python install 3.12
+	uv python update-shell
+
+create:
+	uv venv --clear --python python3.12 .venv 

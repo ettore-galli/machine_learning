@@ -15,8 +15,19 @@ curl -L https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF/resolve/main/qwen2.
 ## Setup uv (una tantum)
 
 ```shell
+
 export UV_INSTALL_DIR="$(pwd)/tools/uv"
 curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+Oppure:
+
+```shell
+mkdir tools
+
+curl -LsSf https://astral.sh/uv/install.sh | \
+  env UV_INSTALL_DIR="$(pwd)/tools/uv" \
+      UV_NO_MODIFY_PATH=1 sh
 
 ```
 
