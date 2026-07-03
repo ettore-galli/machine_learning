@@ -1,4 +1,4 @@
-from typing import cast
+from typing import Any, cast
 
 from ai_agent.base import build_agent_input, extract_response_message
 from ai_agent.agent_openai import initialize_agent
@@ -13,10 +13,12 @@ def perform_model_interaction(agent: CompiledStateGraph, user_prompt: str) -> No
     print(extract_response_message(response))
 
 
-def get_token_content(token: str | BaseMessage) -> str | None:
+def get_token_content(
+    token: str | BaseMessage,
+) -> str | list[str | dict[Any, Any]] | None:
     if isinstance(token, str) and token:
         return token
-    return cast(BaseMessage, token).content
+    return cast(BaseMessage, token).content if token is not None else None
 
 
 def perform_streamed_model_interaction(
@@ -44,7 +46,7 @@ def main():
         if user_prompt == "exit":
             break
 
-        perform_streamed_model_interaction(agent=agent, user_prompt=user_prompt)
+        perform_model_interaction(agent=agent, user_prompt=user_prompt)
 
 
 if __name__ == "__main__":
