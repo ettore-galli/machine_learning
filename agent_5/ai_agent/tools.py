@@ -13,5 +13,4 @@ def calculate_average(values: List[float | int]):
     "Calculate the average of a list of numbers."
 
     ave = sum(values) / len(values) if values else 0.0
-    print(f"*AVERAGE TOOL* ==> ave({values}) = {ave}")
     return ave

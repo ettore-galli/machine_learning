@@ -24,12 +24,9 @@ def initialize_agent():
         tools=[calculate_average],
         middleware=[ToolCallMiddleware()],
         system_prompt="""You are a helpful assistant.
-
-When you need to use a tool, output ONLY the tool call in the following JSON format, nothing else:
-
-{"name": "calculate_average", "arguments": {"values": [1, 2, 3]}}
-
-Do not include XML tags, Use strict JSON format, do not add explanations, do not use any other format.""",
+If and only if you need to use a tool, output ONLY the tool call in the following JSON format:
+{"tool":{"name": "...", "arguments": {"values": [...]}}}
+""",
     )
 
     return agent
