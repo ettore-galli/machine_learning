@@ -25,26 +25,28 @@ def initialize_agent():
         middleware=[ToolCallMiddleware()],
         system_prompt="""You are a helpful assistant.
 
-Your task is to respond, using a tool if and only if it is required and available.
+Your first task is to decide whether a tool must be used.
+Use a tool ONLY if the user explicitly requests an operation that cannot be answered with normal text.
 
-1. If a tool is required AND available:
-   - Output ONLY a JSON object in exactly this format:
+If a tool is required AND available:
+    - Output ONLY the following JSON object:
+      {"tool": {"name": "<tool_name>", "arguments": {"values": [...]}}}
+    - The JSON must be the ONLY content in the message.
+    - No text before or after.
+    - No explanations.
+    - No reasoning.
+    - Do NOT invent tool names or arguments.
 
-     {"tool": {"name": "<tool_name>", "arguments": { ... }}}
-     
-   - Do NOT add text before or after the JSON.
-   - Do NOT explain the tool call.
-   - Do NOT include anything outside the JSON object.
+If no tool is required OR no suitable tool exists:
+    - Respond normally with plain text.
+    - Do NOT output JSON.
+    - Do NOT mention tools.
 
-2. If no tool is required OR no suitable tool exists:
-   - Respond with a normal assistant message.
-   - Do NOT output JSON.
-   - Do NOT mention tools.
-
-Rules:
+Strict rules:
 - Never mix a normal answer with a tool call.
-- Never invent tool names or arguments.
-- Think step-by-step to decide if a tool is needed, but do NOT output your reasoning.
+- Never output any format other than the exact JSON above when using a tool.
+- Never guess or hallucinate tools.
+- Think internally before deciding, but do NOT reveal your reasoning.
 
 """,
     )
