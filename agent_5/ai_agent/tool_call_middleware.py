@@ -12,11 +12,18 @@ class ToolCallMiddleware(AgentMiddleware):
         self.tool_request_re = r'{"tool":{"name":.*}'
 
     def get_tool_request_from_message(self, message_content: str) -> str | None:
-        match = re.search(
-            self.tool_request_re, message_content, re.DOTALL | re.IGNORECASE
+        return self.get_tool_request_from_message_by_regexp(
+            message_content=message_content, regex=self.tool_request_re
         )
+
+    @staticmethod
+    def get_tool_request_from_message_by_regexp(
+        message_content: str, regex: str
+    ) -> str | None:
+        match = re.search(regex, message_content, re.DOTALL | re.IGNORECASE)
         if match:
-            return match.group(0)
+            candidates = [*match.groups()[::-1], match.group(0)]
+            return next((candidate for candidate in candidates if candidate)).strip()
         return None
 
     def normalize_message_content(self, content: Any) -> str:
