@@ -9,12 +9,21 @@ from langgraph.runtime import Runtime
 class ToolCallMiddleware(AgentMiddleware):
     def __init__(self):
         super().__init__()
-        self.tool_request_re = r'{"tool":{"name":.*}'
+        self.tool_request_re_cases = [
+            r'{"tool":{"name":.*}',
+            r"<tool_call>(.*)</tool_call>",
+        ]
 
     def get_tool_request_from_message(self, message_content: str) -> str | None:
-        return self.get_tool_request_from_message_by_regexp(
-            message_content=message_content, regex=self.tool_request_re
-        )
+        for tool in [
+            self.get_tool_request_from_message_by_regexp(
+                message_content=message_content, regex=re_case
+            )
+            for re_case in self.tool_request_re_cases
+        ]:
+            if tool:
+                return tool
+        return None
 
     @staticmethod
     def get_tool_request_from_message_by_regexp(
@@ -45,13 +54,17 @@ class ToolCallMiddleware(AgentMiddleware):
 
         if candidate_tool_call:
 
-            tool_data = json.loads(candidate_tool_call)
+            tool_call_source = json.loads(candidate_tool_call)
+            tool_data = (
+                tool_call_source["tool"]
+                if "tool" in tool_call_source
+                else tool_call_source
+            )
 
             tool_calls = [
                 {
-                    "name": tool_data["tool"]["name"],
-                    "args": tool_data.get("tool", {}).get("arguments")
-                    or tool_data.get("args", {}),
+                    "name": tool_data["name"],
+                    "args": tool_data.get("arguments") or tool_data.get("args", {}),
                     "id": tool_data.get(
                         "id", f"call_{hash(candidate_tool_call) % 10000}"
                     ),
