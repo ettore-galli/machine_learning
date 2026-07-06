@@ -3,7 +3,7 @@ dependencies = [
   "langchain",
   "langchain-openai",
   "langchain-community",
-  "llama-cpp-python[server]>=0.3.7",
+  "llama-cpp-python[server]>=0.3.7"
 ]
 description = "Agente 5"
 name = "agent-5"

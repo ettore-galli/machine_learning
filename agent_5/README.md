@@ -10,6 +10,10 @@
 curl -L https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf -o /Volumes/DOCKER/huggingface/downloaded/qwen2.5-1.5b-instruct-q4_k_m.gguf
 
 curl -L https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF/resolve/main/qwen2.5-3b-instruct-q8_0.gguf -o /Volumes/DOCKER/huggingface/downloaded/qwen2.5-3b-instruct-q8_0.gguf
+
+
+curl -L https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.3-GGUF/resolve/main/mistral-7b-instruct-v0.3.Q4_K_M.gguf -o /Volumes/DOCKER/huggingface/downloaded/mistral-7b-instruct-v0.3.Q4_K_M.gguf 
+
 ```
 
 ## Setup uv (una tantum)
@@ -72,4 +76,18 @@ curl http://localhost:9876/v1/chat/completions \
         "model": "local-model",
         "messages": [{"role": "user", "content": "Rispondi unicamente si o no: 3+7 è un calcolo?"}]
       }'
+```
+
+## VLLM Server setup
+
+Model
+
+```shell
+hf download Qwen/Qwen2.5-3B-Instruct --local-dir /Volumes/DOCKER/hf_models/qwen2.5-3b
+hf download mistralai/Mistral-7B-Instruct-v0.3 --local-dir /Volumes/DOCKER/hf_models/mistral7b
+
+python convert-hf-to-gguf.py \
+  /Volumes/DOCKER/hf_models/mistral7b \
+  --out /Volumes/DOCKER/huggingface/downloaded/mistral7b.gguf
+
 ```
