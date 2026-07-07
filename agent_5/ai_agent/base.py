@@ -25,7 +25,7 @@ class AgentSettings:
 
         return AgentSettings(
             llama_cpp_server_url=os.getenv("LLAMA_CPP_SERVER_URL", "").strip(),
-            llama_cpp_server_model=os.getenv("MODEL_QWEN253B_NAME", "").strip(),
+            llama_cpp_server_model=os.getenv("AGENT_MODEL_SERVER_NAME", "").strip(),
         )
 
 

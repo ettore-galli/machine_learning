@@ -23,20 +23,7 @@ def initialize_agent():
         model=model,
         tools=[calculate_average],
         middleware=[ToolCallMiddleware()],
-        system_prompt="""You are a helpful assistant.
-
-If a tool is required AND available:
-    - Output ONLY the following JSON object:
-      {"tool": {"name": "<tool_name>", "arguments": {"values": [...]}}}
-    - The JSON must be the ONLY content in the message.
-    - No text before or after.
-    - No explanations.
-    - No reasoning.
-    - Do NOT invent tool names or arguments.
-
-Otherwise respond normally without using tools
-
-""",
+        system_prompt="""Usa i tool solo quando l’utente lo richiede esplicitamente.”""",
     )
 
     return agent

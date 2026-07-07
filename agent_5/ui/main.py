@@ -1,6 +1,6 @@
 from typing import Any, cast
 
-from ai_agent.base import build_agent_input, extract_response_message
+from ai_agent.base import AgentSettings, build_agent_input, extract_response_message
 from ai_agent.agent_openai import initialize_agent
 from langchain.agents.middleware.types import InputAgentState
 from langchain_core.messages import BaseMessage
@@ -35,7 +35,10 @@ def perform_streamed_model_interaction(
 
 
 def main():
-    print("Mini-Agent Locale (LangGraph + Llama.cpp)")
+    agent_settings: AgentSettings = AgentSettings.load()
+    print(f"Mini-Agent Locale")
+    print(f"Modello..: {agent_settings.llama_cpp_server_model}")
+    print(f"Url......: {agent_settings.llama_cpp_server_url}")
     print("Scrivi 'exit' per uscire.\n")
 
     agent: CompiledStateGraph = initialize_agent()
