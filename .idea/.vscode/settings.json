@@ -1,0 +1,21 @@
+{
+  // Interprete Python usato da VS Code
+  "python.defaultInterpreterPath": "/Users/ettoregalli/Documents/SVILUPPO/machine_learning/agent_5/.venv/bin/python",
+
+  // Percorsi aggiuntivi per Pylance (fondamentale!)
+  "python.analysis.extraPaths": [
+    "/Users/ettoregalli/Documents/SVILUPPO/machine_learning/agent_5/.venv/lib/python3.12/site-packages"
+  ],
+
+  // Migliora l’indicizzazione e gli import
+  "python.analysis.indexing": true,
+  "python.analysis.autoImportCompletions": true,
+
+  // Evita che VS Code cerchi interpreti in altre cartelle del workspace
+  "python.terminal.activateEnvironment": true,
+  "python.terminal.activateEnvInCurrentTerminal": true,
+
+  // Consigliato per workspace con più agent
+  "python.analysis.useLibraryCodeForTypes": true,
+  "python.analysis.stubPaths": []
+}
