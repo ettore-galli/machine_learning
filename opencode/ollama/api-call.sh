@@ -6,7 +6,7 @@ source ./env.sh
 
 json=$(jq -n \
   --arg prompt "$1" \
-  '{model:"Meta-Llama-3.1", prompt:$prompt, stream:false}')
+  '{model:"Qwen2.5-Coder", prompt:$prompt, stream:false}')
 
 curl http://localhost:11434/api/generate \
   -H "Content-Type: application/json" \
