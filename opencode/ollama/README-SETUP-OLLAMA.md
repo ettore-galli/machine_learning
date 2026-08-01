@@ -34,3 +34,32 @@ mv "${OLLAMA_STANDARD_DIR}" "${OLLAMA_EXTERNAL_DIR}"
 ln -s "${OLLAMA_EXTERNAL_DIR}" "${OLLAMA_STANDARD_DIR}"
 
 ```
+
+## Installazione
+
+```shell
+
+
+sudo /Applications/Ollama.app/Contents/MacOS/Ollama install
+
+
+ollama --version
+ollama ps
+```
+
+
+## Gestione daemon
+
+```shell 
+# 1) Disabilita il servizio launchd
+#    Dopo l’installazione, esegui:
+
+sudo launchctl disable system/com.ollama.ollama
+
+# 1) (Opzionale) Ferma il daemon se è già in esecuzione
+sudo launchctl stop system/com.ollama.ollama
+
+#2) Avvia Ollama solo quando ti serve
+
+ollama serve
+ 
