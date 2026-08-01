@@ -11,9 +11,13 @@
         "Meta-Llama-3.1": {
           "name": "Meta Llama 3.1 (local)",
           "tools": true
+        },
+        "Qwen2.5-Coder": {
+          "name": "Qwen2.5-Coder",
+          "tools": true
         }
       }
     }
   },
-  "model": "ollama/Meta-Llama-3.1"
+  "model": "ollama/Qwen2.5-Coder"
 }
