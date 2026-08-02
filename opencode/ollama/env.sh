@@ -2,12 +2,14 @@
 #
 export OLLAMA_PATH=$(pwd)
 
-export EXECUTABLE="${OLLAMA_PATH}/Ollama.app/Contents/Resources/ollama"
+export OLLAMA_MODELS="/Volumes/DOCKER/ollama-models"
 
-export MODEL_PATH="/Volumes/DOCKER/huggingface/gguf-models/Qwen2.5-Coder-14B-Q5_K_M.gguf"
+export EXECUTABLE=ollama # Assumed in path
 
-# export OLLAMA_MODEL_NAME="Meta-Llama-3.1"
-export OLLAMA_MODEL_NAME="Qwen2.5-Coder"
+# export MODEL_PATH="/Volumes/DOCKER/huggingface/gguf-models/Qwen2.5-Coder-14B-Q5_K_M.gguf"
+export MODEL_PATH="/Volumes/DOCKER/huggingface/gguf-models/Qwen2.5-Coder-7B.Q4_K_M.gguf"
+
+export OLLAMA_MODEL_NAME="qwen2.5-coder"
 
  
 

@@ -1,0 +1,10 @@
+FROM /Volumes/DOCKER/huggingface/gguf-models/Qwen2.5-Coder-7B.Q4_K_M.gguf
+
+PARAMETER temperature 0.3
+PARAMETER top_p 0.9
+PARAMETER top_k 40
+PARAMETER repeat_penalty 1.1
+PARAMETER num_ctx 16384
+PARAMETER num_predict 4096
+
+SYSTEM """You are an expert coding assistant. Write clean, correct, and well-structured code. Prefer simple and readable solutions. When asked for a single file, output only the complete file content without extra explanations unless requested."""

@@ -1,0 +1,19 @@
+FROM /Volumes/DOCKER/huggingface/gguf-models/Qwen2.5-Coder-14B-Q5_K_M.gguf
+
+# Contesto: stabile ma non enorme
+PARAMETER num_ctx 4096
+
+# Thread: solo performance cores per stabilità
+PARAMETER num_thread 4
+
+# Sampling: poco creativo, ma non bloccato
+PARAMETER temperature 0.2
+PARAMETER top_p 0.9
+PARAMETER repeat_penalty 1.15
+
+# Niente mirostat per evitare sorprese
+PARAMETER mirostat 0
+
+# Stop tokens coerenti con il modello
+PARAMETER stop "<|assistant|>"
+PARAMETER stop "<|system|>"

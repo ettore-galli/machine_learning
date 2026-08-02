@@ -2,6 +2,8 @@
 #
 source ./env.sh
 
-${EXECUTABLE} create ${OLLAMA_MODEL_NAME} -f Modelfile
+echo OLLAMA_MODELS=${OLLAMA_MODELS}
+
+${EXECUTABLE} pull qwen2.5-coder:7b
 
 
