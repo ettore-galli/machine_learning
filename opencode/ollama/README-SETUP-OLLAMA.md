@@ -47,10 +47,9 @@ ollama --version
 ollama ps
 ```
 
-
 ## Gestione daemon
 
-```shell 
+```shell
 # 1) Disabilita il servizio launchd
 #    Dopo l’installazione, esegui:
 
@@ -62,4 +61,3 @@ sudo launchctl stop system/com.ollama.ollama
 #2) Avvia Ollama solo quando ti serve
 
 ollama serve
- 
