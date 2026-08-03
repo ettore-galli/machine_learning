@@ -7,8 +7,7 @@ EXIT_WORD = "/bye"
 
 
 def perform_model_interaction(user_prompt: str) -> None:
-    response = get_model_response(user_prompt=user_prompt, system_prompt=SYSTEM_PROMPT)
-    print(response)
+    _ = get_model_response(user_prompt=user_prompt, system_prompt=SYSTEM_PROMPT)
 
 
 def main():
