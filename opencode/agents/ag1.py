@@ -1,5 +1,10 @@
+from datetime import datetime
+print(f"Pre import ollama {datetime.now()}")
 import ollama
-    
+print(f"Post import ollama {datetime.now()}")
+
+
+
 # --- DEFINIZIONE DEGLI STRUMENTI (TOOLS) ---
 # Queste sono le funzioni che l'agente può decidere di "chiamare"
 def get_weather(city: str):
@@ -9,9 +14,11 @@ def get_weather(city: str):
         return "22°C, Soleggiato"
     return "18°C, Nuvoloso"
 
+
 def calculate_sum(a: float, b: float):
     """Esegue l'addizione di due numeri."""
     return a + b
+
 
 # --- LOGICA DELL'AGENTE ---
 def simple_agent(user_prompt):
@@ -28,18 +35,19 @@ def simple_agent(user_prompt):
     """
 
     # Primo passaggio: L'LLM decide cosa fare
-    response = ollama.generate(model='gemma4:12b',
-    prompt=f"{system_prompt}\nUtente: {user_prompt}")
-    decision = response['response']
+    response = ollama.generate(
+        model="Qwen2.5-Coder:7b", prompt=f"{system_prompt}\nUtente: {user_prompt}"
+    )
+    decision = response["response"]
 
     print(f"--- Ragionamento Agente ---\n{decision}")
 
     # Logica semplificata di "esecuzione azione" (Parsing manuale per didattica)
     if "calculate_sum" in decision:
         # Estraiamo i numeri (in un progetto reale useresti una Regex o
-        #Pydantic)
+        # Pydantic)
         # Per semplicità, simuliamo l'esecuzione della funzione
-        result = calculate_sum(10, 20) # Esempio statico
+        result = calculate_sum(10, 20)  # Esempio statico
         print(f"Esecuzione Tool: {result}")
         return f"Il risultato del calcolo è {result}."
 
@@ -49,11 +57,18 @@ def simple_agent(user_prompt):
         return f"Il meteo attuale a Roma è {result}."
 
     else:
-        return response['response']
+        return response["response"]
+
 
 # --- TEST ---
-print("Domanda 1: Che tempo fa a Roma?")
-print("Risposta:", simple_agent("Che tempo fa a Roma?"))
-print("-" * 30)
-print("Domanda 2: Quanto fa 10 + 20?")
-print("Risposta:", simple_agent("Quanto fa 10 + 20?"))
+if __name__ == '__main__':
+    ini = datetime.now()
+    print(f"INI: {ini}")
+    print("Domanda 1: Che tempo fa a Roma?")
+    print("Risposta:", simple_agent("Che tempo fa a Roma?"))
+    print("-" * 30)
+    print("Domanda 2: Quanto fa 10 + 20?")
+    print("Risposta:", simple_agent("Quanto fa 10 + 20?"))
+    end = datetime.now()
+    print(f"END: {end}")
+    print(f"DUR: {end-ini}")
