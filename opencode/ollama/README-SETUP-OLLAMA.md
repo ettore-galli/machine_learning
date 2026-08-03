@@ -1,31 +1,43 @@
-# SETUP OLLAMA LOCAL
+# SETUP OLLAMA
 
-## Download and place ollama locally
+## [Once] Install via official installer
 
 ```txt
 https://ollama.com/download/mac
 ```
 
-## Create an environment
+* "Download for Mac OS"
+* Copy into Applications
+
+Then perform:
+
+```shell
+sudo /Applications/Ollama.app/Contents/MacOS/Ollama install
+
+ollama --version
+ollama ps
+```
+
+## [Once] Create an environment
 
 @see env.sh
 
-## One time setup script
+## [Once] One time setup script
 
 @see setup.sh
 
-## Daily start script
+## [Daily] Daily start script
 
 @see serve.sh
 @see cli.sh
 
-## Una tantum: spostamento su SSD del modello locale
+## [Once] move local models onto external SSD
 
 ```shell
 
-# Standerd ollama:
+# Standard ollama model path:
 #   ~/.ollama/models
-# Link percorso
+# Path link
 export OLLAMA_STANDARD_DIR="$HOME/.ollama/models"
 export OLLAMA_EXTERNAL_DIR="/Volumes/DOCKER/ollama-models"
 
@@ -35,29 +47,27 @@ ln -s "${OLLAMA_EXTERNAL_DIR}" "${OLLAMA_STANDARD_DIR}"
 
 ```
 
-## Installazione
+## Manage ollama daemon
+
+i.e. disable ollama daemon for manual start via ollama serve
 
 ```shell
-
-
-sudo /Applications/Ollama.app/Contents/MacOS/Ollama install
-
-
-ollama --version
-ollama ps
+sudo launchctl disable system/com.ollama.ollama
+sudo launchctl stop system/com.ollama.ollama
 ```
 
-## Gestione daemon
+## Start ollama daemon
 
 ```shell
-# 1) Disabilita il servizio launchd
-#    Dopo l’installazione, esegui:
-
-sudo launchctl disable system/com.ollama.ollama
-
-# 1) (Opzionale) Ferma il daemon se è già in esecuzione
-sudo launchctl stop system/com.ollama.ollama
-
-#2) Avvia Ollama solo quando ti serve
-
 ollama serve
+```
+
+## [Once] Obtain model
+
+Example
+
+```shell
+export OLLAMA_MODELS="/Maybe/your/external/drive"
+
+ollama pull qwen2.5-coder:7b
+```
