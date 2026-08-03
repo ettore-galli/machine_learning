@@ -12,7 +12,6 @@ uv init --no-workspace
 
 uv add "ollama==0.6.2"
 
-
 uv add --dev ruff
 uv add --dev black
 uv add --dev pyright
