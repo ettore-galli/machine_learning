@@ -1,6 +1,6 @@
 from ai_agent.agent_proxy import get_model_response
 
-SYSTEM_PROMPT = """
+TOOLING_SYSTEM_PROMPT = """
     Sei un assistente utile. Hai a disposizione i seguenti strumenti:
 
     1. get_weather(city): per ottenere il meteo.
@@ -19,8 +19,11 @@ SYSTEM_PROMPT = """
     ACTION: get_weather, "Mulazzano"
     ACTION: calculate_sum, 17, 34
 
-    Se l'utente fa una richiesta diversa, rispondi normalmente.
+    Se l'utente fa una richiesta diversa, rispondi normalmente ignorando i tool.
     """
+
+GENERAL_SYSTEM_PROMPT = """
+Sei un assistente generico. Rispondi alle domande in modo preciso e conciso"""
 EXIT_WORD = "/bye"
 USER_PROMPT_MARKER: str = "Utente"
 
@@ -32,7 +35,7 @@ def display_response_segment(segment: str) -> None:
 def perform_model_interaction(user_prompt: str) -> None:
     _ = get_model_response(
         user_prompt=user_prompt,
-        system_prompt=SYSTEM_PROMPT,
+        system_prompt=GENERAL_SYSTEM_PROMPT,
         user_prompt_marker=USER_PROMPT_MARKER,
         response_displayer=display_response_segment,
     )
