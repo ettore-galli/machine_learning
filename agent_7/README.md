@@ -1,5 +1,8 @@
 # AGENT 7
 
+ESEMPIO INTERESSANTE DI CHAT CHE FUNZIONA DECENTEMENTE
+Ollama + qwen2.5-coder:7b
+
 ## Setup
 
 ## Init uv (una tantum)

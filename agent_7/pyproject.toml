@@ -2,6 +2,7 @@
 dependencies = [
   "ollama==0.6.2",
   "python-dotenv>=1.0.1",
+  "open-webui"
 ]
 description = "Agente 7"
 name = "agent-5"
