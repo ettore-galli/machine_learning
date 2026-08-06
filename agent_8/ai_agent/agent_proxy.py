@@ -1,5 +1,5 @@
 import ollama
-from ai_agent.base import ResponseDisplayer
+from ai_agent.base import OLLAMA_MODEL, ResponseDisplayer
 
 
 def get_model_response(
@@ -12,7 +12,7 @@ def get_model_response(
     response_segments = []
 
     for chunk in ollama.generate(
-        model="Qwen2.5-Coder:7b",
+        model=OLLAMA_MODEL,
         prompt=f"{system_prompt}\n{user_prompt_marker}: {user_prompt}",
         stream=True,
     ):
