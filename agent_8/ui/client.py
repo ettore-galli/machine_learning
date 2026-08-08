@@ -1,5 +1,6 @@
 import asyncio
 from contextlib import AsyncExitStack
+import json
 
 import ollama
 from mcp import ClientSession, StdioServerParameters
@@ -40,7 +41,7 @@ class MCPAgent:
                 "function": {
                     "name": tool.name,
                     "description": tool.description or "",
-                    "parameters": tool.input_schema,   
+                    "parameters": tool.input_schema,
                 },
             }
             for tool in self.tools
@@ -49,7 +50,12 @@ class MCPAgent:
     async def chat(self, user_message: str) -> str:
         self.messages.append({"role": "user", "content": user_message})
 
-        while True:
+        max_turns = 6  # sicurezza anti-loop
+        turn = 0
+
+        while turn < max_turns:
+            turn += 1
+
             response = ollama.chat(
                 model=MODEL,
                 messages=self.messages,
@@ -59,28 +65,73 @@ class MCPAgent:
             message = response["message"]
             self.messages.append(message)
 
-            # Se non ci sono tool calls → risposta finale
-            if not message.get("tool_calls"):
-                return message["content"]
+            tool_calls = message.get("tool_calls") or []
 
-            # Esegui ogni tool call
-            for tool_call in message["tool_calls"]:
-                name = tool_call["function"]["name"]
-                args = tool_call["function"]["arguments"]
+            # ---------- Fallback intelligente ----------
+            if not tool_calls and message.get("content"):
+                content = message["content"].strip()
+
+                # Solo se sembra chiaramente un tool call
+                if (
+                    content.startswith("{")
+                    and '"name"' in content
+                    and '"arguments"' in content
+                ):
+                    try:
+                        parsed = json.loads(content)
+                        if isinstance(parsed, dict) and "name" in parsed:
+                            tool_calls = [
+                                {
+                                    "function": {
+                                        "name": parsed["name"],
+                                        "arguments": parsed.get("arguments", {}),
+                                    }
+                                }
+                            ]
+                            print("⚠️  Tool call recuperato dal content (fallback)")
+                    except json.JSONDecodeError:
+                        pass
+            # -------------------------------------------
+
+            # Se non ci sono tool call → risposta finale
+            if not tool_calls:
+                return message.get("content", "").strip()
+
+            # Esegui i tool
+            for tool_call in tool_calls:
+                func = tool_call["function"]
+                name = func["name"]
+                args = func["arguments"]
+
+                if isinstance(args, str):
+                    try:
+                        args = json.loads(args)
+                    except json.JSONDecodeError:
+                        args = {}
 
                 print(f"🔧 Chiamata tool: {name}({args})")
 
                 result = await self.session.call_tool(name, args)
-                # MCP restituisce una lista di content; prendiamo il testo
-                content = result.content[0].text if result.content else str(result)
+                tool_result = result.content[0].text if result.content else str(result)
 
+                # Aggiungi il risultato del tool
                 self.messages.append(
                     {
                         "role": "tool",
-                        "content": content,
+                        "content": tool_result,
                         "name": name,
                     }
                 )
+
+                # Piccolo aiuto al modello: digli di rispondere
+                self.messages.append(
+                    {
+                        "role": "user",
+                        "content": "Usa il risultato del tool per rispondere in modo chiaro e conciso all'utente. Non chiamare altri tool se non strettamente necessario.",
+                    }
+                )
+
+        return "⚠️ Ho raggiunto il limite di passaggi. Prova a riformulare la domanda."
 
     async def close(self):
         await self.exit_stack.aclose()
