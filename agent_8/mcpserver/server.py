@@ -2,6 +2,7 @@ from mcp.server import MCPServer
 
 mcp = MCPServer("CoderTools")
 
+
 @mcp.tool()
 def calculate(expression: str) -> str:
     """Valuta un'espressione matematica Python sicura (es. '2 + 3 * 4')."""
@@ -12,18 +13,21 @@ def calculate(expression: str) -> str:
             return "Errore: caratteri non consentiti"
         result = eval(expression, {"__builtins__": {}}, {})
         return str(result)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         return f"Errore: {e}"
+
 
 @mcp.tool()
 def reverse_string(text: str) -> str:
     """Inverte una stringa."""
     return text[::-1]
 
+
 @mcp.tool()
 def word_count(text: str) -> int:
     """Conta le parole in un testo."""
     return len(text.split())
 
+
 if __name__ == "__main__":
-    mcp.run()   # transport stdio di default
+    mcp.run()  # transport stdio di default

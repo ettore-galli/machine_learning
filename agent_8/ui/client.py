@@ -1,10 +1,14 @@
 import asyncio
-from contextlib import AsyncExitStack
 import json
+import os
+from contextlib import AsyncExitStack
+from pathlib import Path
 
-import ollama
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
+from mcp_types import TextContent
+
+import ollama
 
 MODEL = "qwen2.5-coder:7b"  # oppure qwen2.5-coder:14b / 32b se ce l'hai
 
@@ -15,7 +19,13 @@ class MCPAgent:
         self.exit_stack = AsyncExitStack()
         self.messages = []
 
-    async def connect(self, server_script: str = "server.py"):
+    @staticmethod
+    def get_server_script() -> Path:
+        return Path(os.getcwd(), "mcpserver", "server.py")
+
+    async def connect(self, server_script: str):
+        print(f"Connecting to :{server_script} ...")
+
         server_params = StdioServerParameters(
             command="python",
             args=[server_script],
@@ -111,25 +121,34 @@ class MCPAgent:
 
                 print(f"🔧 Chiamata tool: {name}({args})")
 
-                result = await self.session.call_tool(name, args)
-                tool_result = result.content[0].text if result.content else str(result)
+                if self.session:
+                    result = await self.session.call_tool(name, args)
+                    result_content = result.content[0]
 
-                # Aggiungi il risultato del tool
-                self.messages.append(
-                    {
-                        "role": "tool",
-                        "content": tool_result,
-                        "name": name,
-                    }
-                )
+                    tool_result = (
+                        result_content.text
+                        if isinstance(result_content, TextContent)
+                        else str(result)
+                    )
 
-                # Piccolo aiuto al modello: digli di rispondere
-                self.messages.append(
-                    {
-                        "role": "user",
-                        "content": "Usa il risultato del tool per rispondere in modo chiaro e conciso all'utente. Non chiamare altri tool se non strettamente necessario.",
-                    }
-                )
+                    # Aggiungi il risultato del tool
+                    self.messages.append(
+                        {
+                            "role": "tool",
+                            "content": tool_result,
+                            "name": name,
+                        }
+                    )
+
+                    # Piccolo aiuto al modello: digli di rispondere
+                    self.messages.append(
+                        {
+                            "role": "user",
+                            "content": "Usa il risultato del tool per rispondere in modo chiaro e conciso all'utente. Non chiamare altri tool se non strettamente necessario.",
+                        }
+                    )
+                else:
+                    return "Sessione client non attiva"
 
         return "⚠️ Ho raggiunto il limite di passaggi. Prova a riformulare la domanda."
 
@@ -139,7 +158,7 @@ class MCPAgent:
 
 async def main():
     agent = MCPAgent()
-    await agent.connect("server.py")
+    await agent.connect(str(MCPAgent.get_server_script()))
 
     print("\nAgente pronto (digita 'exit' per uscire)\n")
 
