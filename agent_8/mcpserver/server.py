@@ -18,6 +18,12 @@ def calculate(expression: str) -> str:
 
 
 @mcp.tool()
+def display_to_user(content: str) -> None:
+    """Mostra all'utente un risultato"""
+    print(f"\n{'*'*80}\n{content}\n{'*'*80}\n")
+
+
+@mcp.tool()
 def reverse_string(text: str) -> str:
     """Inverte una stringa."""
     return text[::-1]
@@ -37,7 +43,14 @@ def root(number: str) -> float:
     except ValueError:
         return -1.234567
 
-
+@mcp.tool()
+def numero_di_ettore(number: str) -> float:
+    """calcola il numero di ettore applicando la formula apposita"""
+    try:
+        return float(number) ** 0.5
+    except ValueError:
+        return -1.234567
+    
 @mcp.resource("greeting://{name}")
 def greeting(name: str) -> str:
     """Greet someone by name."""
