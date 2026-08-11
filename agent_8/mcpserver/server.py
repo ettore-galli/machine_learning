@@ -29,5 +29,26 @@ def word_count(text: str) -> int:
     return len(text.split())
 
 
+@mcp.tool()
+def root(number: str) -> float:
+    """calcola la radice quadrata."""
+    try:
+        return float(number) ** 0.5
+    except ValueError:
+        return -1.234567
+
+
+@mcp.resource("greeting://{name}")
+def greeting(name: str) -> str:
+    """Greet someone by name."""
+    return f"Hello, {name}!"
+
+
+@mcp.prompt()
+def summarize(text: str) -> str:
+    """Summarize a piece of text in one sentence."""
+    return f"Summarize the following text in one sentence:\n\n{text}"
+
+
 if __name__ == "__main__":
     mcp.run()  # transport stdio di default

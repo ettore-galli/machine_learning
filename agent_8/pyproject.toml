@@ -3,7 +3,7 @@ dependencies = [
   "ollama==0.6.2",
   "python-dotenv>=1.0.1",
   "pdfplumber",
-  "mcp[cli]",
+  "mcp[all]",
   "requests",
 ]
 description = "Agente 8"
