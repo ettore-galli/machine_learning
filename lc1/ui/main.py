@@ -1,5 +1,6 @@
-from llm.llm_model import llm_model
 from langchain_core.messages import HumanMessage
+from llm.llm_model import llm_agent
+
 
 def provide_user_output(content: str, *args, **kwargs) -> None:
     print(content, *args, **kwargs)
@@ -21,8 +22,8 @@ def chat_loop() -> None:
             """Sei un assistente. Se la richiesta lo prevede, usa i tool a disposizione. """
             + user_input
         )
-        response = llm_model.invoke([HumanMessage(prompt)])
-        provide_user_output(response.content)
+        response = llm_agent.invoke({"messages": [HumanMessage(content=prompt)]})
+        provide_user_output(response["messages"][-1].content)
         provide_user_output("\n")
 
 
