@@ -1,11 +1,19 @@
 import torch
 
-from dataset import X, y
-from model import model
-from train import train_model
+from model import SimpleNN
+from common import get_config
+
+
+def load_model() -> torch.nn.Module:
+    model = SimpleNN()
+    config = get_config()
+    model.load_state_dict(torch.load(config.model_weights_file))
+
+    return model
 
 
 def evaluate():
+    model = load_model()
     model.eval()
     with torch.no_grad():
         print("\n-----\n")
@@ -16,6 +24,5 @@ def evaluate():
 
 
 if __name__ == "__main__":
-    train_model(model=model, X=X, y=y)
 
     evaluate()

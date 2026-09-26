@@ -1,9 +1,15 @@
 import torch
 import torch.nn as nn
 
+from common import Config
+
 
 def train_model(
-    model: nn.Module, X: torch.Tensor, y: torch.Tensor, number_of_epochs: int = 200
+    config: Config,
+    model: nn.Module,
+    X: torch.Tensor,
+    y: torch.Tensor,
+    number_of_epochs: int = 200,
 ):
     loss_fn = nn.BCEWithLogitsLoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=0.1)
@@ -24,3 +30,6 @@ def train_model(
 
         if epoch % 20 == 0:
             print(f"Epoch {epoch}, Loss: {loss.item():.4f}")
+
+    torch.save(model.state_dict(), config.model_weights_file)
+
