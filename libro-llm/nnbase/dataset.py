@@ -1,6 +1,6 @@
 # Dataset sintetico
-import torch
 import matplotlib.pyplot as plt
+import torch
 
 N = 500
 X = torch.randn(N, 2)

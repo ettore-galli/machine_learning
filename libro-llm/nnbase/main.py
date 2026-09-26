@@ -1,7 +1,6 @@
 import torch
-
-from model import SimpleNN
 from common import get_config
+from model import SimpleNN
 
 
 def load_model() -> torch.nn.Module:

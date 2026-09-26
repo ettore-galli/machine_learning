@@ -1,7 +1,6 @@
 import torch
-import torch.nn as nn
-
 from common import Config
+from torch import nn
 
 
 def train_model(
@@ -32,4 +31,3 @@ def train_model(
             print(f"Epoch {epoch}, Loss: {loss.item():.4f}")
 
     torch.save(model.state_dict(), config.model_weights_file)
-
