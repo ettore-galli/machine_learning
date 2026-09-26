@@ -1,4 +1,4 @@
-source ./.venv/bin/activate
+source ./../../.venvnn/bin/activate
 export PYTHONPATH=.
 
 
