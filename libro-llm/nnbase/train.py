@@ -8,6 +8,8 @@ def train_model(
     loss_fn = nn.BCEWithLogitsLoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=0.1)
 
+    model.train()
+
     for epoch in range(number_of_epochs):
         # Forward
         logits = model(X).squeeze()
