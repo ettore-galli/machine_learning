@@ -7,7 +7,7 @@ from train import train_model
 
 def evaluate():
     print("\n-----\n")
-    example_data = torch.Tensor([[1, 0], [1, 3], [1, 9]])
+    example_data = torch.Tensor([[1, -3], [1, 3], [1, 2]])
     print(f"{example_data} => {model.forward(example_data)}")
 
 
