@@ -3,20 +3,20 @@ add-uv-path:
 	@echo 'export PATH=$$(pwd)/tools/uv:$$PATH'
 
 setup-lint:
-	uv tool install ruff
-	uv tool install pyright
-	uv tool install black
+	uv tool install --active ruff
+	uv tool install --active pyright
+	uv tool install --active black
 
 test:
 	pytest tests/unit/
 
 lint:
-	uv run black .
-	uv run ruff check .
-	uv run pyright .
+	uv run --active black .
+	uv run --active ruff check .
+	uv run --active pyright .
 
 ruff-fix:
-	uv run ruff check . --fix
+	uv run --active ruff check . --fix
 
 sync:
 	uv sync --active
