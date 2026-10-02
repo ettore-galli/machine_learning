@@ -1,6 +1,7 @@
 import torch
-from common import Config
 from torch import nn
+
+from llmgpt.common import Config
 
 
 def train_model(

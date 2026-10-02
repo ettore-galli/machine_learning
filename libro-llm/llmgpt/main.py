@@ -2,8 +2,8 @@ from typing import cast
 
 import matplotlib.pyplot as plt
 import torch
-from common import get_config
-from model import SimpleNN
+from llmgpt.common import get_config
+from llmgpt.model import SimpleNN
 from torch import nn
 
 
