@@ -2,7 +2,7 @@ from typing import cast
 
 import matplotlib.pyplot as plt
 import torch
-from llmgpt.common import get_config
+from llmgpt.config import get_config
 from llmgpt.model import SimpleNN
 from torch import nn
 
