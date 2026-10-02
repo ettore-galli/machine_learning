@@ -1,0 +1,21 @@
+[project]
+dependencies = [
+  "torch==2.14.0",
+  "matplotlib==3.11.2",
+]
+description = "LLM GPT from scratch"
+name = "llm-gpt"
+readme = "README.md"
+requires-python = "==3.12.*"
+version = "0.1.0"
+
+[dependency-groups]
+dev = [
+  "black>=26.3.1",
+  "pyright>=1.1.410",
+  "pytest>=9.0.3",
+  "ruff>=0.15.12",
+]
+
+[tool.pytest.ini_options]
+addopts = "-s -vvv"
