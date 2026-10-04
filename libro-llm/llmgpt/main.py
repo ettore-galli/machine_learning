@@ -3,12 +3,12 @@ from typing import cast
 import matplotlib.pyplot as plt
 import torch
 from llmgpt.config import get_config
-from llmgpt.model import SimpleNN
+from llmgpt.model import GptNN
 from torch import nn
 
 
 def load_model() -> torch.nn.Module:
-    model = SimpleNN()
+    model = GptNN(config=get_config())
     config = get_config()
     model.load_state_dict(torch.load(config.model_weights_file))
 

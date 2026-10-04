@@ -20,8 +20,8 @@ class Config(DataClassDict):
     gpt_config: GPTConfig
 
 
-def get_config() -> Config:
-    gpt_config = GPTConfig(
+def get_gpt_config() -> GPTConfig:
+    return GPTConfig(
         vocab_size=50257,
         context_length=1024,
         emb_dim=768,
@@ -30,4 +30,8 @@ def get_config() -> Config:
         drop_rate=0.1,
         qkv_bias=False,
     )
+
+
+def get_config() -> Config:
+    gpt_config = get_gpt_config()
     return Config(model_weights_file="parameters/SimpleNN.pth", gpt_config=gpt_config)
