@@ -35,9 +35,7 @@ class GptNN(nn.Module):
 
     def forward(self, in_idx: torch.Tensor):
         __batch_size, sequence_length = in_idx.shape
-        token_embeddings: torch.Tensor = self.token_embedding(
-            in_idx, device=in_idx.device
-        )
+        token_embeddings: torch.Tensor = self.token_embedding(in_idx)
         position_embeddings: torch.Tensor = self.position_embedding(
             torch.arange(sequence_length, device=in_idx.device)
         )
