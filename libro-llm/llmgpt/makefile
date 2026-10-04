@@ -8,7 +8,7 @@ setup-lint:
 	uv tool install --active black
 
 test:
-	pytest tests/unit/
+	pytest -s -vvv tests/unit/
 
 lint:
 	uv run --active black .

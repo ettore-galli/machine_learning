@@ -1,7 +1,7 @@
 import torch
-from llmgpt.model import GptNN
 from llmgpt.config import get_config
 from llmgpt.input_processing import produce_input_embeddings
+from llmgpt.model import GptNN
 
 
 def try_model_basic_inference_behaviour():
@@ -12,5 +12,5 @@ def try_model_basic_inference_behaviour():
     print(logits)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try_model_basic_inference_behaviour()
